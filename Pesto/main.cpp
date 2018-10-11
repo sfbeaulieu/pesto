@@ -8,30 +8,42 @@
 #include "utils.h"
 #include <thread>
 #include "fw.h"
+
 using namespace std;
 
 
 
 int main()
 {
+//:::::::::::::::::::::::::::::::: Mode Development :::::::::::::::::::::::::::;
+developpement=0;//0-> release on lyra, 1->mode development
+//:::::::::::::::::::::::::::::::: Mode Development :::::::::::::::::::::::::::;
 
 
-int mode=2;
-int inc=1;
-int error=0;
-tcs_loop=1;
-detParam.nbrExp=15;
-isInAcq = 0;
 
-    initializeSocket();//initialization des sockets
-    initVariable(&param,&detParam);//must be called before openCam()
-    openCam(&myCam,&param,&detParam);//open the connection with the camera
 
+//start everything
+initializeSocket();//initialization des sockets
+initVariable(&param,&detParam);//must be called before openCam()
+openCam(&myCam,&param,&detParam);//open the connection with the camera
+
+
+
+
+//create threads
 std::thread tTCS(tcs,&tcs_var);
+std::thread tCCDT(ccdTemp,&detParam);
+std::thread tCCDLoop(getTempLoop,&detParam);
+std::thread tMeteo(meteoThread,&meteo);
 
-tTCS.join();
+//start the threads
+tTCS.detach();
+tCCDT.detach();
+tCCDLoop.detach();
+tMeteo.detach();
 
-cout<<adress_tcs<<endl;
+
+//cout<<param.maxGain<<endl;
 while(1)
 {   if(read_socket(&Case,caseID)!=0){break;}
     switch(atoi(Case.c_str())){
@@ -66,8 +78,13 @@ while(1)
                 break;
             }
 
-            loop=1;//open the acquisition loop
+            if (developpement==0)
+            {
+                preACQ(&detParam);
+            }
 
+
+            loop=1;//open the acquisition loop
             detParam.path=create_dossier(stoi(buff4),&detParam);
 
 
@@ -75,9 +92,9 @@ while(1)
             mode=stoi(buff1);
             detParam.nbrExp=stoi(buff2);
 
-            std::cout<<mode<<" dans le main loop"<<std::endl;
+            //std::cout<<mode<<" dans le main loop"<<std::endl;
             inc=get_inc(&param);
-            cout<<inc<<endl;
+            //cout<<inc<<endl;
             std::thread tACQ(acquisition,&mode,&loop,&inc);
 
             if(stoi(buff3)==1)
@@ -109,14 +126,13 @@ while(1)
             detParam.exposureTime=stod(buff1);
 
             error+=ncCamSetExposureTime(myCam, detParam.exposureTime);
-            error+=ncCamSetWaitingTime(myCam, 0.1 * detParam.exposureTime);
+            error+=ncCamSetWaitingTime(myCam, 0);
             error+=ncCamGetReadoutTime(myCam, &detParam.readoutTime);
             error+=ncCamSetTimeout(myCam, (int)(0.1 * detParam.exposureTime + detParam.exposureTime + detParam.readoutTime ) );
-            if (error==0)
-            {
-            sprintf(cWRITE,"%d",0);
-            }
-            else {sprintf(cWRITE,"%d",-1);}
+           // if (error==0){sprintf(cWRITE,"%d",0);}
+           // else {sprintf(cWRITE,"%d",-1);}
+            sprintf(cWRITE,"%d",(error==0) ? 0 : -1);
+
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
             break;
@@ -154,7 +170,7 @@ while(1)
 
     }
     case 5://Set Temperature
-    {
+    {   biasOK=0;
         if(read_socket(&buff1,buff1ID)!=0)
         {   log.writetoVerbose("unable to read the argument buffer (SET_CCDT)");
             sprintf(cWRITE,"%d",-1);
@@ -221,7 +237,7 @@ while(1)
         break;
     }
     case 8://set Time stamp
-    {
+    {   biasOK=0;
         if(read_socket(&buff1,buff1ID)!=0)
         {   log.writeto("unable to read the argument buffer (SET_TSTAMP)");
             sprintf(cWRITE,"%d",-1);
@@ -250,6 +266,7 @@ while(1)
     }
     case 9://set the bias
     {   int out;
+
         out= applyBias(&myCam,&param,&detParam);
         sprintf(cWRITE,"%d",out);
         WRITE = cWRITE;
@@ -258,6 +275,7 @@ while(1)
     }
     case 10://set the EM gain
     {   int gain;
+        biasOK=0;
         if(read_socket(&buff1,buff1ID)!=0)
         {   log.writeto("unable to read the argument buffer (SET_GAIN)");
             sprintf(cWRITE,"%d",-1);
@@ -266,7 +284,7 @@ while(1)
             break;
         }
         gain = stoi(buff1);
-        if (gain <=param.maxGain && gain>=10)
+        if (gain <=param.maxGain && gain>=param.minGain)
         {
             if (ncCamSetCalibratedEmGain(myCam,gain)!=0)
             {
@@ -354,6 +372,7 @@ while(1)
     }
     case 14: //set the readout mode
     {   int ro;
+        biasOK=0;
         if(read_socket(&buff1,buff1ID)!=0)
         {   log.writeto("unable to read the argument buffer (SET_RO)");
             sprintf(cWRITE,"%d",-1);
@@ -372,7 +391,7 @@ while(1)
                 read2way(repID,&WRITE,WRITE);
             }
             else
-            {
+            {   ROIcount = 0;
                 sprintf(cWRITE,"%d",0);
                 WRITE = cWRITE;
                 read2way(repID,&WRITE,WRITE);
@@ -380,7 +399,7 @@ while(1)
         }
         else
         {
-            log.writeto("read out mode is out of range");
+            log.writeto("read out mode is out of range.\n");
             sprintf(cWRITE,"%d",-2);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -391,69 +410,96 @@ while(1)
     case 15:// filter wheel
     {
         if(read_socket(&buff1,buff1ID)!=0)
-        {   log.writetoVerbose("unable to read the argument buffer (filter wheel)");
+        {   log.writetoVerbose("unable to read the argument buffer (filter wheel).\n");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
             break;
         }
 
-
+        if (overideFW!=1){
         if (isdigit(buff1.c_str()[0]))
         {
 
             sprintf(cWRITE,"%d",fw.position(stoi(buff1)));
             if (atoi(cWRITE)==-1)
             {
-                log.writetoVerbose("Failed to set the filter");
+                log.writetoVerbose("Failed to set the filter.\n");
                 detParam.current_filter="N/A";
             }
             else
             {
-                switch(atoi(cWRITE)+1)
+                switch(atoi(cWRITE))
                 {
                     case 1:
                     {
-                        detParam.current_filter=param.FW0;
+                        detParam.current_filter=param.FW1;
+                        break;
                     }
                 case 2:
                 {
-                    detParam.current_filter=param.FW1;
+                    detParam.current_filter=param.FW2;
+                    break;
                 }
                 case 3:
                 {
-                    detParam.current_filter=param.FW2;
+                    detParam.current_filter=param.FW3;
+                    break;
                 }
                 case 4:
                 {
-                    detParam.current_filter=param.FW3;
+                    detParam.current_filter=param.FW4;
+                    break;
                 }
                 case 5:
                 {
-                    detParam.current_filter=param.FW4;
-                }
-                case 6:
-                {
                     detParam.current_filter=param.FW5;
+                    break;
                 }
+
                 }//switch
             }
+
 
         }
         else if (!isdigit(buff1.c_str()[0]))
         {
             if (buff1=="H")
             {
+
                 sprintf(cWRITE,"%d",fw.home());
+                if (atoi(cWRITE)==-1)
+                {
+                    log.writetoVerbose("Failed to set the filter.\n");
+                    detParam.current_filter="N/A";
+                }
+                else
+                {
+                    detParam.current_filter=param.FW0;
+                }
             }
             if (buff1=="?")
             {
                 sprintf(cWRITE,"%d",fw.get_position());
+                if (atoi(cWRITE)==-1)
+                {
+                    log.writetoVerbose("Unable to get the position of the filter wheel.\n");
+                    detParam.current_filter="N/A";
+                }
             }
             if (buff1=="+")
             {
-                detParam.current_filter+="+";
+
                 sprintf(cWRITE,"%d",fw.increment());
+                if (atoi(cWRITE)==-1)
+                {
+                    log.writetoVerbose("Failed to set the filter.\n");
+                    detParam.current_filter="N/A";
+                }
+                else
+                {
+                    detParam.current_filter+="+";
+                }
             }
         }
         else
@@ -462,7 +508,13 @@ while(1)
         }
         WRITE = cWRITE;
         read2way(repID,&WRITE,WRITE);
-
+        }//if override
+        else
+        {
+            sprintf(cWRITE,"%d",-1);
+            WRITE = cWRITE;
+            read2way(repID,&WRITE,WRITE);
+        }
         break;
     }
     case 16://connect a device FW()
@@ -525,6 +577,9 @@ while(1)
         {
             detParam.observateur=buff1;
             log.writetoVerbose("new Observer set succesfully");
+            sprintf(cWRITE,"%d",0);
+            WRITE = cWRITE;
+            read2way(repID,&WRITE,WRITE);
         }
         break;
     }
@@ -540,7 +595,10 @@ while(1)
         else
         {
             detParam.Operator=buff1;
-            log.writetoVerbose("new Observer set succesfully");
+            log.writetoVerbose("new operator set succesfully");
+            sprintf(cWRITE,"%d",0);
+            WRITE = cWRITE;
+            read2way(repID,&WRITE,WRITE);
         }
 
         break;
@@ -572,6 +630,191 @@ while(1)
             log.writeto("Readout mode is: "+std::to_string(ro_mode));
         }
 
+        break;
+    }
+    case 21://test de tcs (print tcs variable)
+    {
+        sprintf(cWRITE,"%d",biasOK);
+        if (biasOK)
+        {
+            //cout<<"The bias is up to date"<<endl;
+        }
+        else
+        {
+            //cout<<"The bias is out of date"<<endl;
+        }
+        WRITE = cWRITE;
+        read2way(repID,&WRITE,WRITE);
+
+        break;
+    }
+    case 22://ROI
+    {   int ro_mode,VerHz,HorHz,fullWidth,fullHeight;
+        enum Ampli	ncAmpliNo;
+        char Amp[32];
+        char dummy[10];
+        int offsetY;
+        int roiHeight;
+        biasOK=0;
+        if(read_socket(&buff1,buff1ID)!=0)
+        {   log.writetoVerbose("unable to read the argument buffer (ROI)");
+            sprintf(cWRITE,"%d",-1);
+            WRITE = cWRITE;
+            read2way(repID,&WRITE,WRITE);
+            break;
+        }
+        if(read_socket(&buff2,buff2ID)!=0)
+        {   log.writetoVerbose("unable to read the argument buffer (ROI)");
+            sprintf(cWRITE,"%d",-1);
+            WRITE = cWRITE;
+            read2way(repID,&WRITE,WRITE);
+            break;
+        }
+        offsetY = stoi(buff1);
+        roiHeight = stoi(buff2);
+
+
+        if (isInAcq!=0)//the go loop should not be running while the roi is set
+        {
+            if (ncCamAbort(myCam)!=0)
+            {
+                log.writetoVerbose("Unable to abort the camera\n");
+                sprintf(cWRITE,"%d",-1);
+                WRITE = cWRITE;
+                read2way(repID,&WRITE,WRITE);
+                break;
+            }
+            else
+            {
+                isInAcq=0;
+            }
+
+        }
+
+       if (ncCamGetCurrentReadoutMode(myCam,&ro_mode,&ncAmpliNo,Amp,&VerHz,&HorHz)!=0)
+       {std::cout<<"Problème ligne 663"<<std::endl;
+           sprintf(cWRITE,"%d",-1);
+           WRITE = cWRITE;
+           read2way(repID,&WRITE,WRITE);
+           log.writetoVerbose("unable to query the camera");
+           break;
+
+       }
+       //mode conventionel
+       if (ro_mode>=4 && ro_mode<=11)
+       {
+            if (ncCamGetMaxSize(myCam, &fullWidth, &fullHeight)!=0){
+                std::cout<<"Problème ligne 675"<<std::endl;
+                sprintf(dummy,"-1");}
+            else if (ncCamSetMRoiSize(myCam,0,fullWidth,roiHeight)!=0){
+                std::cout<<"Problème ligne 678"<<std::endl;
+                sprintf(dummy,"-1");}
+            else if (ncCamSetMRoiPosition(myCam,0,0,offsetY)!=0){
+                std::cout<<"Problème ligne 681"<<std::endl;
+                sprintf(dummy,"-1");}
+            else if (ncCamMRoiApply( myCam )!=0){
+                std::cout<<"Problème ligne 684"<<std::endl;
+                sprintf(dummy,"-1");}
+            else {sprintf(dummy,"0");}
+        }
+
+       //mode EM
+       else
+           //cout<<"EM mode"<<endl;
+       {
+            if (ROIcount==0)
+            {
+                if (ncCamGetMaxSize(myCam, &fullWidth, &fullHeight)!=0){sprintf(dummy,"-1");}
+                else if (ncCamSetMRoiSize(myCam,0,fullWidth,4)!=0){sprintf(dummy,"-1");}
+                else if (ncCamMRoiApply( myCam )!=0){sprintf(dummy,"-1");}
+                else {sprintf(dummy,"0");}
+                ROIcount++;
+            }
+
+
+                if (ncCamAddMRoi( myCam,0,offsetY, fullWidth, roiHeight)!=0){sprintf(dummy,"-1");}
+                else if (ncCamMRoiApply( myCam )!=0){sprintf(dummy,"-1");}
+                else {ROIcount++;
+                    sprintf(dummy,"0");}
+
+
+       }
+
+       WRITE = dummy;
+       read2way(repID,&WRITE,WRITE);
+       log.writetoVerbose("ROI created succesfully");
+
+
+        break;
+    }
+    case 23://get exposure time
+    {   double current_exposureT;
+        double current_readoutT;
+        if (ncCamGetExposureTime(myCam, 1, &current_exposureT)!=0 || ncCamGetReadoutTime(myCam, &current_readoutT)!=0)
+        {
+            sprintf(cWRITE,"%d",-1);
+            log.writetoVerbose("unable to query the camera");
+        }
+
+        else
+        {
+            if (current_exposureT<current_readoutT)
+            {
+                sprintf(cWRITE,"%f",current_readoutT);
+            }
+            else
+            {
+                sprintf(cWRITE,"%f",current_exposureT);
+            }
+
+        }
+
+
+        WRITE = cWRITE;
+        read2way(repID,&WRITE,WRITE);
+
+
+
+        break;
+    }
+    case 24://get readout mode
+    {
+
+        int ro_mode,VerHz,HorHz;
+                enum Ampli	ncAmpliNo;
+                char Amp[32];
+
+        if (ncCamGetCurrentReadoutMode(myCam,&ro_mode,&ncAmpliNo,Amp,&VerHz,&HorHz)!=0)
+        {
+            sprintf(cWRITE,"%d",-1);
+        }
+        else {
+            sprintf(cWRITE,"%d",ro_mode);
+        }
+        WRITE = cWRITE;
+        read2way(repID,&WRITE,WRITE);
+        break;
+    }
+    case 25://overide filterposition
+    {
+        if(read_socket(&buff1,buff1ID)!=0)
+        {   log.writetoVerbose("unable to read the argument buffer (ROI)");
+            sprintf(cWRITE,"%d",-1);
+            WRITE = cWRITE;
+            read2way(repID,&WRITE,WRITE);
+            break;
+        }
+        overideFW=1;
+        detParam.current_filter=buff1;
+        //detParam.current_filter
+        sprintf(cWRITE,"%d",0);
+        WRITE = cWRITE;
+        read2way(repID,&WRITE,WRITE);
+        break;
+    }//case 25
+    case 26://stop overriding the fw
+    {
+        overideFW=0;
         break;
     }
     }//switch statement

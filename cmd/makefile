@@ -2,7 +2,8 @@
 
 ALL: ./acquisition/acquisition ./setExposureTime/setExposureTime ./stopAcq/stopAcq ./close/close ./ccdTemp/ccdTemp ./getCcdTemp/getCcdTemp ./setTimeStamp/setTimeStamp\
 	./bias/bias ./setObjName/setObjName ./setGain/setGain ./closeShut/closeShut ./openShut/openShut ./setRO/setRO ./getGain/getGain ./positionFW/positionFW\
-	./connectFW/connectFW ./closeConnectFW/closeConnectFW ./SET_OBS/SET_OBS ./SET_OPE/SET_OPE
+	./connectFW/connectFW ./closeConnectFW/closeConnectFW ./SET_OBS/SET_OBS ./SET_OPE/SET_OPE ./printTCS/PRINT_TCS ./test/TEST ./getCCDTLoop/GET_CCDT_LOOP\
+	./getBiasStatus/GET_BIAS_STATUS ./setROI/SET_ROI ./getExpT/GET_EXP ./getROMode/GET_ROMODE ./overideFW/overideFW ./stopOverideFW/stopOverideFW
 
 ./acquisition/acquisition:./acquisition/main.cpp
 	g++ -I./lib -o/bin/GO ./lib/socket.cpp ./acquisition/main.cpp
@@ -41,5 +42,22 @@ ALL: ./acquisition/acquisition ./setExposureTime/setExposureTime ./stopAcq/stopA
 ./SET_OBS/SET_OBS:./SET_OBS/main.cpp
 	g++ -I./lib -o/bin/SET_OBS ./lib/socket.cpp ./SET_OBS/main.cpp
 ./SET_OPE/SET_OPE:./SET_OPE/main.cpp
-	g++ -I./lib -o/bin/SET_OPERATOR ./lib/socket.cpp ./SET_OPE/main.cpp
-
+	g++ -I./lib -o/bin/SET_OPE ./lib/socket.cpp ./SET_OPE/main.cpp
+./printTCS/PRINT_TCS:./printTCS/main.cpp
+	g++ -I./lib -o/bin/PRINT_TCS ./lib/socket.cpp ./printTCS/main.cpp
+./test/TEST:./test/main.cpp
+	g++ -I./lib -o/bin/TEST ./lib/socket.cpp ./test/main.cpp
+./getCCDTLoop/GET_CCDT_LOOP:./getCCDTLoop/main.cpp
+	g++ -I./lib -o/bin/GET_CCDT_LOOP ./lib/socket.cpp ./getCCDTLoop/main.cpp
+./getBiasStatus/GET_BIAS_STATUS:./getBiasStatus/main.cpp
+	g++ -I./lib -o/bin/GET_BIAS_STATUS ./lib/socket.cpp ./getBiasStatus/main.cpp
+./setROI/SET_ROI:./setROI/main.cpp
+	g++ -I./lib -o/bin/SET_ROI ./lib/socket.cpp ./setROI/main.cpp
+./getExpT/GET_EXP:./getExpT/main.cpp
+	g++ -I./lib -o/bin/GET_EXP ./lib/socket.cpp ./getExpT/main.cpp
+./getROMode/GET_ROMODE:./getROMode/main.cpp
+	g++ -I./lib -o/bin/GET_ROMODE ./lib/socket.cpp ./getROMode/main.cpp
+./overideFW/overideFW:./overideFW/main.cpp
+	g++ -I./lib -o/bin/OVERIDEFW ./lib/socket.cpp ./overideFW/main.cpp
+./stopOverideFW/stopOverideFW:./stopOverideFW/main.cpp
+	g++ -I./lib -o/bin/STOPOVERIDEFW ./lib/socket.cpp ./stopOverideFW/main.cpp

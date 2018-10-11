@@ -12,4 +12,7 @@ std::string create_dossier(int mode,struct camParam *detParam);
 int selectTimeStamp(NcCam *cam,int mode);
 int applyBias(NcCam *cam,struct initParam *param,struct camParam *detParam);
 int get_inc(struct initParam *param);
+double getPosRot(void);
+double getPosBras(void);
+int preACQ(struct camParam *cam);
 #endif // UTILS_H

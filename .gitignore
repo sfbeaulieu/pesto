@@ -10,3 +10,17 @@ build-Pesto-Desktop_Qt_5_7_1_GCC_64bit-Debug/
 *.9fc54fc
 
 Pesto/test
+
+*.stash
+
+*.odp#
+
+build/
+
+*.7f7ed70
+
+*.o
+
+*.pdf
+
+*.pyc

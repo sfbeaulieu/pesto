@@ -15,6 +15,7 @@ struct initParam{
     int nbBiasConv;
     int nbBiasEm;
     int maxGain;
+    int minGain;
     std::string FW0;
     std::string FW1;
     std::string FW2;
@@ -37,6 +38,8 @@ struct camParam{
     std::string current_filter;
     std::string observateur;
     std::string Operator;
+    double rotAngle;
+    double rotBras;
 
 
 };

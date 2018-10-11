@@ -14,10 +14,12 @@ public:
     int createfile(void);
     bool isFolder(std::string path);
     bool isFile(std::string path);
+    bool isLeap(int year);
 
 private:
     void checkDate(void);
     std::string createfileName(void);
+    std::string Time(void);
 };
 
 #endif // LOG_H

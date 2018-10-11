@@ -7,7 +7,7 @@
 FW::FW()
 {
 FW::isHomed=0;//everytime the pesto is started the filter wheel is automatically not initialized
-FW::adress = "132.204.60.20";// adress of the filter server at OMM
+FW::adress = "132.204.61.142";// adress of the filter server at OMM
 
 }
 int FW::position(int pos)
@@ -27,6 +27,7 @@ int FW::position(int pos)
     write_socket_address(8301,FW::adress,&cmd2);
     write2way_adress(8400,FW::adress,WRITE,&ANSW);
     ANSW.erase(std::remove(ANSW.begin(), ANSW.end(), '\n'), ANSW.end());
+
     if (pos==stoi(ANSW))
     {
         return stoi(ANSW);

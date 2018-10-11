@@ -39,7 +39,7 @@ int create_socket(int port){
     int enable=1;
     //Si on redémare spirouserver rapidement on va pas avoir de problem au niveau d'ouvrir un port
     if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0){
-        error("setsockopt(SO_REUSEADDR) failed");
+        perror("setsockopt(SO_REUSEADDR) failed");
         return -1;}
 
     server.sin_family = AF_INET;
@@ -71,7 +71,7 @@ int create_socket_adress(int port,std::string adress){
     int enable=1;
     //Si on redémare spirouserver rapidement on va pas avoir de problem au niveau d'ouvrir un port
     if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0){
-        error("setsockopt(SO_REUSEADDR) failed");
+        perror("setsockopt(SO_REUSEADDR) failed");
         return -1;}
 
     server.sin_family = AF_INET;
@@ -143,18 +143,18 @@ int write_socket(int port,std::string *command){
     sock = socket(AF_INET, SOCK_STREAM,0);
     if(sock < 0){
         perror("socket failed");
-        exit(1);
+       return -1;
         }
     server.sin_family = AF_INET;
     hp = gethostbyname("localhost");
     if(hp==NULL){//modification 2018-01-13
         perror("gethostbyname failed");
         close(sock);
-        exit(1);	}
+        return -1;	}
     if((hp ==0))
         {
         perror("gethostbyname failed");
-        exit(1);
+        return -1;
         }
     memcpy(&server.sin_addr, hp->h_addr, hp->h_length);
 
@@ -164,7 +164,7 @@ int write_socket(int port,std::string *command){
         {
         perror("connect failed");
         close(sock);
-        exit(1);
+        return -1;
         }
     sprintf(command_to_send,"L%2.2lu%s\n",strlen(command->c_str()),command->c_str());
 
@@ -188,18 +188,18 @@ int write_socket_address(int port,std::string adress,std::string *command){
 
     if(sock < 0){
         perror("socket failed");
-        exit(1);
+       return -1;
         }
     server.sin_family = AF_INET;
     hp = gethostbyname("localhost");
     if(hp==NULL){//modification 2018-01-13
         perror("gethostbyname failed");
         close(sock);
-        exit(1);	}
+        return -1;	}
     if((hp ==0))
         {
         perror("gethostbyname failed");
-        exit(1);
+        return -1;
         }
     memcpy(&server.sin_addr, hp->h_addr, hp->h_length);
 
@@ -209,7 +209,7 @@ int write_socket_address(int port,std::string adress,std::string *command){
         {
         perror("connect failed");
         close(sock);
-        exit(1);
+       return -1;
         }
     sprintf(command_to_send,"L%2.2lu%s\n",strlen(command->c_str()),command->c_str());
 
@@ -231,15 +231,18 @@ int createSocket2way(int portno){
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     int enable=1;
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof( int)) < 0){
-        error("setsockopt(SO_REUSEADDR) failed");}
+        perror("setsockopt(SO_REUSEADDR) failed");
+    return -1;}
     if (sockfd < 0){
-        error("ERROR opening socket");}
+        perror("ERROR opening socket");
+    return -1;}
      memset((char *) &serv_addr, 0,sizeof(serv_addr));
      serv_addr.sin_family = AF_INET;
      serv_addr.sin_addr.s_addr = INADDR_ANY;
      serv_addr.sin_port = htons(portno);
     if (bind(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0){
-         error("ERROR on binding");}
+         perror("ERROR on binding");
+    return -1;}
     listen(sockfd,10);
     return sockfd;
 }//createSocket2way END
@@ -258,13 +261,13 @@ int write2way_adress(int portno,std::string adress, std::string Write, std::stri
     char buffer[1024];
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0){
-        error("ERROR opening socket");
+        perror("ERROR opening socket");
         return -1;
     }//if
 
     server = gethostbyname("localhost");
     if (server == NULL) {
-        fprintf(stderr,"ERROR, no such host\n");
+        fprintf(stderr," no such host\n");
         return -1;}//if
     memset((char *) &serv_addr,0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
@@ -274,13 +277,13 @@ int write2way_adress(int portno,std::string adress, std::string Write, std::stri
 
 
     if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0){
-        //error("ERROR connecting");
+        perror("ERROR connecting");
         return -1;
     }//if
 
     n = write(sockfd,Write.c_str(),strlen(Write.c_str()));
     if (n < 0) {
-         error("ERROR writing to socket");
+         perror("ERROR writing to socket");
         return -1;
     }//if
     memset(buffer,0,1024);
@@ -290,7 +293,7 @@ int write2way_adress(int portno,std::string adress, std::string Write, std::stri
     *Read=buffer;
 
     if (n < 0){
-         error("ERROR reading from socket");
+         perror("ERROR reading from socket");
         return -1;}
 
     close(sockfd);
@@ -312,8 +315,9 @@ int read2way(int sockfd,std::string *buffer, std::string Write){
     char buff[1024];
     clilen = sizeof(cli_addr);
     newsockfd = accept(sockfd,(struct sockaddr *) &cli_addr, &clilen);
-    if (newsockfd < 0)
-        error("ERROR on accept");
+    if (newsockfd < 0){
+        perror("ERROR on accept");
+        return -1;}
     memset(buff,0,1024);
     n = read(newsockfd,buff,1024);
     if (n < 0) error("ERROR reading from socket");
@@ -339,20 +343,23 @@ int write2way(int portno, std::string Write, std::string *Read){
     char buffer[1024];
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0){
-        error("ERROR opening socket");}//if
+        perror("ERROR opening socket");
+    return -1;}//if
     server = gethostbyname("localhost");
     if (server == NULL) {
         fprintf(stderr,"ERROR, no such host\n");
-        exit(0);}//if
+        return -1;}//if
     memset((char *) &serv_addr,0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     memcpy( (char *)&serv_addr.sin_addr.s_addr,(char *)server->h_addr,server->h_length);
     serv_addr.sin_port = htons(portno);
     if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0){
-        error("ERROR connecting");}//if
+        perror("ERROR connecting");
+    return -1;}//if
     n = write(sockfd,Write.c_str(),strlen(Write.c_str()));
     if (n < 0) {
-         error("ERROR writing to socket");}//if
+         perror("ERROR writing to socket");
+    return -1;}//if
     memset(buffer,0,1024);
     n = read(sockfd,buffer,1023);
     //strcpy(Read,buffer);
@@ -360,53 +367,9 @@ int write2way(int portno, std::string Write, std::string *Read){
     *Read=buffer;
 
     if (n < 0){
-         error("ERROR reading from socket");}
+         perror("ERROR reading from socket");
+    return -1;}
     close(sockfd);
     return 0;
 }//write2way end
-
-//int write2way_adress(int portno, std::string adress, std::string Write, std::string *Read){
-////Description: This function is called on the client side
-////to send information though Write to a server. The server should then
-////send back an answer which is place in Read. The arguments
-////include the port number of the socket. The is no need to create
-//// a socket on the client side. The socket is created using
-//// using the function "createSocket2way(int portno)" on the server side
-
-//    int sockfd, n;
-//    struct sockaddr_in serv_addr;
-//    struct hostent *server;
-//    char buffer[1024];
-//    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-//    if (sockfd < 0){
-//        error("ERROR opening socket");}//if
-//    server = gethostbyname("localhost");
-//    if (server == NULL) {
-//        fprintf(stderr,"ERROR, no such host\n");
-//        exit(0);}//if
-//    memset((char *) &serv_addr,0, sizeof(serv_addr));
-//    serv_addr.sin_family = AF_INET;
-//    memcpy( (char *)&serv_addr.sin_addr.s_addr,(char *)server->h_addr,server->h_length);
-//    serv_addr.sin_port = htons(portno);
-//    serv_addr.sin_addr.s_addr = inet_addr(adress.c_str());
-//    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0){
-//        error("ERROR connecting");}//if
-//    n = write(sockfd,Write.c_str(),strlen(Write.c_str()));
-//    if (n < 0) {
-//         error("ERROR writing to socket");}//if
-//    memset(buffer,0,1024);
-//    n = read(sockfd,buffer,1023);
-//    //strcpy(Read,buffer);
-//    //Read->copy(buffer,sizeof(buffer));
-//    *Read=buffer;
-
-//    if (n < 0){
-//         error("ERROR reading from socket");}
-//    close(sockfd);
-//    return 0;
-//}
-
-
-
-
 
