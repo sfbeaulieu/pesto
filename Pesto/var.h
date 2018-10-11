@@ -6,7 +6,7 @@
 #include "structure.h"
 #include "fw.h"
 
-int caseID,repID,buff1ID,buff2ID,buff3ID,buff4ID,pathID,buff2wayID1,buff2wayID2;//tout les ID des socket
+int caseID,repID,buff1ID,buff2ID,buff3ID,buff4ID,pathID,buff2wayID1,buff2wayID2,buffAcQ,buffStop;//tout les ID des socket
 pthread_t pth1,pth2;//pense pas qu'on a en encore dde besoin
 pthread_t pth3;//the go thread loop
 pthread_t pth4;//tcs loop to update struct tcs_var

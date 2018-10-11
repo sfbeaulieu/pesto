@@ -22,7 +22,7 @@ extern struct TCS tcs_var;
 extern struct Meteo meteo;
 extern struct camParam detParam;
 extern int nbrBuffer;
-extern int isInAcq;
+
 extern std::string adress_tcs;
 extern int mode,inc,error,ROIcount,tcs_loop,meteo_loop,biasOK,isInAcq,nbrBuffer;
 extern int developpement;

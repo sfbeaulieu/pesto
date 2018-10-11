@@ -3,7 +3,8 @@
 ALL: ./acquisition/acquisition ./setExposureTime/setExposureTime ./stopAcq/stopAcq ./close/close ./ccdTemp/ccdTemp ./getCcdTemp/getCcdTemp ./setTimeStamp/setTimeStamp\
 	./bias/bias ./setObjName/setObjName ./setGain/setGain ./closeShut/closeShut ./openShut/openShut ./setRO/setRO ./getGain/getGain ./positionFW/positionFW\
 	./connectFW/connectFW ./closeConnectFW/closeConnectFW ./SET_OBS/SET_OBS ./SET_OPE/SET_OPE ./printTCS/PRINT_TCS ./test/TEST ./getCCDTLoop/GET_CCDT_LOOP\
-	./getBiasStatus/GET_BIAS_STATUS ./setROI/SET_ROI ./getExpT/GET_EXP ./getROMode/GET_ROMODE ./overideFW/overideFW ./stopOverideFW/stopOverideFW
+	./getBiasStatus/GET_BIAS_STATUS ./setROI/SET_ROI ./getExpT/GET_EXP ./getROMode/GET_ROMODE ./overideFW/overideFW ./stopOverideFW/stopOverideFW \
+	./isacqongoing/isacqongoing ./stopThread/stopThread
 
 ./acquisition/acquisition:./acquisition/main.cpp
 	g++ -I./lib -o/bin/GO ./lib/socket.cpp ./acquisition/main.cpp
@@ -61,3 +62,7 @@ ALL: ./acquisition/acquisition ./setExposureTime/setExposureTime ./stopAcq/stopA
 	g++ -I./lib -o/bin/OVERIDEFW ./lib/socket.cpp ./overideFW/main.cpp
 ./stopOverideFW/stopOverideFW:./stopOverideFW/main.cpp
 	g++ -I./lib -o/bin/STOPOVERIDEFW ./lib/socket.cpp ./stopOverideFW/main.cpp
+./isacqongoing/isacqongoing:./isacqongoing/main.cpp
+	g++ -I./lib -o/bin/ISACQONGOING ./lib/socket.cpp ./isacqongoing/main.cpp
+./stopThread/stopThread:./stopThread/main.cpp
+	g++ -I./lib -o/bin/STOPTHREAD ./lib/socket.cpp ./stopThread/main.cpp

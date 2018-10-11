@@ -12,7 +12,8 @@ int TEMP_port=7004;//pour le thread de temperature
 int Incrementation_port=7005;
 int buff2way1_port=7000;
 int buff2way2_port=7001;
-
+int buffAcQ_port=7006;
+int buffStop_port=7007;
 
 
 

@@ -10,12 +10,13 @@
 #include "log.h"
 #include "socket.h"
 
+
 extern NcCam myCam;
 extern NcImage	*myNcImage;
 extern struct camParam detParam;
 extern struct initParam param;
 extern Log log;
-extern int isInAcq;
+extern int isInAcq,buffAcQ_port,buffAcQ,buffStop_port,buffStop;
 extern int tcs_loop,meteo_loop;
 extern std::string adress_tcs;
 extern std::string nameFile;
@@ -260,4 +261,62 @@ void getTempLoop(struct camParam *detParam)
 
     }
 
+}
+
+void isAcqOnGoing(int *ongoing)
+{
+    buffAcQ = create_socket(buffAcQ_port);
+    if(buffAcQ==-1)
+    {
+        log.writetoVerbose("Unable to create a socket on port "+std::to_string(buffAcQ_port));
+        log.writetoVerbose("Shutting down");
+        exit(1);
+    }
+    std::string REP,dummy;
+    char WRITE[15];
+    while(1)
+    {
+        if(read_socket(&REP,buffAcQ)!=0){break;}
+        if(atoi(REP.c_str())==0)
+        {
+            sprintf(WRITE,"%d",*ongoing);
+            REP = WRITE;
+            read2way(buffAcQ,&dummy,REP);
+        }
+
+
+    }
+
+}
+
+void threadStop(int *close,int *isInAcq)
+{
+    buffStop = create_socket(buffStop_port);
+    if(buffStop==-1)
+    {
+        log.writetoVerbose("Unable to create a socket on port "+std::to_string(buffStop_port));
+        log.writetoVerbose("Shutting down");
+        exit(1);
+    }
+    std::string REP,dummy;
+    char WRITE[15];
+    while(1)
+    {
+        if(read_socket(&REP,buffStop)!=0){break;}
+        if(atoi(REP.c_str())==0)
+        {
+            *close=0;
+            while(*isInAcq){
+                std::cout<<"waiting for the end of the acquisition..."<<std::endl;
+                delay(1000);
+            }
+            sprintf(WRITE,"%d",0);
+            REP = WRITE;
+            read2way(buffStop,&dummy,REP);
+        }
+
+
+
+
+    }
 }

@@ -6,4 +6,6 @@ void tcs(struct TCS *tcs_var);
 void ccdTemp(struct camParam *detParam);
 void getTempLoop(struct camParam *detParam);
 void meteoThread(struct Meteo *meteo);
+void isAcqOnGoing(int *ongoing);
+void threadStop(int *close,int *isInAcq);
 #endif // THREAD_H

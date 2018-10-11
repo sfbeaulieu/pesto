@@ -16,7 +16,7 @@ using namespace std;
 int main()
 {
 //:::::::::::::::::::::::::::::::: Mode Development :::::::::::::::::::::::::::;
-developpement=0;//0-> release on lyra, 1->mode development
+developpement=1;//0-> release on lyra, 1->mode development
 //:::::::::::::::::::::::::::::::: Mode Development :::::::::::::::::::::::::::;
 
 
@@ -35,12 +35,16 @@ std::thread tTCS(tcs,&tcs_var);
 std::thread tCCDT(ccdTemp,&detParam);
 std::thread tCCDLoop(getTempLoop,&detParam);
 std::thread tMeteo(meteoThread,&meteo);
+std::thread tisACQ(isAcqOnGoing,&isInAcq);
+std::thread tStop(threadStop,&loop,&isInAcq);
 
 //start the threads
 tTCS.detach();
 tCCDT.detach();
 tCCDLoop.detach();
 tMeteo.detach();
+tisACQ.detach();
+tStop.detach();
 
 
 //cout<<param.maxGain<<endl;
@@ -92,9 +96,7 @@ while(1)
             mode=stoi(buff1);
             detParam.nbrExp=stoi(buff2);
 
-            //std::cout<<mode<<" dans le main loop"<<std::endl;
             inc=get_inc(&param);
-            //cout<<inc<<endl;
             std::thread tACQ(acquisition,&mode,&loop,&inc);
 
             if(stoi(buff3)==1)
