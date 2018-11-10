@@ -4,7 +4,7 @@ ALL: ./acquisition/acquisition ./setExposureTime/setExposureTime ./stopAcq/stopA
 	./bias/bias ./setObjName/setObjName ./setGain/setGain ./closeShut/closeShut ./openShut/openShut ./setRO/setRO ./getGain/getGain ./positionFW/positionFW\
 	./connectFW/connectFW ./closeConnectFW/closeConnectFW ./SET_OBS/SET_OBS ./SET_OPE/SET_OPE ./printTCS/PRINT_TCS ./test/TEST ./getCCDTLoop/GET_CCDT_LOOP\
 	./getBiasStatus/GET_BIAS_STATUS ./setROI/SET_ROI ./getExpT/GET_EXP ./getROMode/GET_ROMODE ./overideFW/overideFW ./stopOverideFW/stopOverideFW \
-	./isacqongoing/isacqongoing ./stopThread/stopThread
+	./isacqongoing/isacqongoing ./stopThread/stopThread ./getInc/getInc
 
 ./acquisition/acquisition:./acquisition/main.cpp
 	g++ -I./lib -o/bin/GO ./lib/socket.cpp ./acquisition/main.cpp
@@ -66,3 +66,5 @@ ALL: ./acquisition/acquisition ./setExposureTime/setExposureTime ./stopAcq/stopA
 	g++ -I./lib -o/bin/ISACQONGOING ./lib/socket.cpp ./isacqongoing/main.cpp
 ./stopThread/stopThread:./stopThread/main.cpp
 	g++ -I./lib -o/bin/STOPTHREAD ./lib/socket.cpp ./stopThread/main.cpp
+./getInc/getInc:./getInc/main.cpp
+	g++ -I./lib -o/bin/GETINC ./lib/socket.cpp ./getInc/main.cpp

@@ -54,12 +54,14 @@ def fwhm(imO,x,y):
     im[im<4*red.sigma_clipped_stats(im)[2]+red.sigma_clipped_stats(im)[0]]=0
     xfit,yfit = PU.centroid_com(im)
     g =  models.Gaussian2D(amplitude=np.amax(im), x_mean=xfit,y_mean=yfit, x_stddev=4,y_stddev=4)
+    
     fit_p = fitting.LevMarLSQFitter()
     y, x = np.mgrid[:im.shape[0], :im.shape[1]]
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
         p = fit_p(g, x, y, im)
     r = (p.x_stddev+p.y_stddev)
+    
     SNR,S = SN(imO,xfit,yfit,r,gain,ro)
     return p,SNR,S,r
 

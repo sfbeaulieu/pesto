@@ -16,10 +16,11 @@ extern NcImage	*myNcImage;
 extern struct camParam detParam;
 extern struct initParam param;
 extern Log log;
-extern int isInAcq,buffAcQ_port,buffAcQ,buffStop_port,buffStop;
+extern int isInAcq,buffAcQ_port,buffAcQ,buffStop_port,buffStop,buffInc,buffInc_port;
 extern int tcs_loop,meteo_loop;
 extern std::string adress_tcs;
 extern std::string nameFile;
+extern int threadInc;
 //extern int loop;
 //extern int inc;
 
@@ -53,6 +54,7 @@ void acquisition(int *mode,int *loop,int *inc){
         {
             *inc+=1;
             sprintf(objectnbr,"%.10d",*inc);
+            sscanf(objectnbr,"%d",&threadInc);
             ncCamRead(myCam, &myNcImage);
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
             ncCamSaveImage(myCam, myNcImage,nameFile.c_str(), FITS," " , 1);
@@ -313,6 +315,32 @@ void threadStop(int *close,int *isInAcq)
             sprintf(WRITE,"%d",0);
             REP = WRITE;
             read2way(buffStop,&dummy,REP);
+        }
+
+
+
+
+    }
+}
+void getInc(int *incVar)
+{
+    buffInc = create_socket(buffInc_port);
+    if(buffInc==-1)
+    {
+        log.writetoVerbose("Unable to create a socket on port "+std::to_string(buffInc_port));
+        log.writetoVerbose("Shutting down");
+        exit(1);
+    }
+    std::string REP,dummy;
+    char WRITE[15];
+    while(1)
+    {
+        if(read_socket(&REP,buffInc)!=0){break;}
+        if(atoi(REP.c_str())==0)
+        {
+            sprintf(WRITE,"%d",*incVar);
+            REP = WRITE;
+            read2way(buffInc,&dummy,REP);
         }
 
 

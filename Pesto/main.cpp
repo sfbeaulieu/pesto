@@ -16,7 +16,7 @@ using namespace std;
 int main()
 {
 //:::::::::::::::::::::::::::::::: Mode Development :::::::::::::::::::::::::::;
-developpement=1;//0-> release on lyra, 1->mode development
+developpement=0;//0-> release on lyra, 1->mode development
 //:::::::::::::::::::::::::::::::: Mode Development :::::::::::::::::::::::::::;
 
 
@@ -37,7 +37,7 @@ std::thread tCCDLoop(getTempLoop,&detParam);
 std::thread tMeteo(meteoThread,&meteo);
 std::thread tisACQ(isAcqOnGoing,&isInAcq);
 std::thread tStop(threadStop,&loop,&isInAcq);
-
+std::thread tInc(getInc,&threadInc);
 //start the threads
 tTCS.detach();
 tCCDT.detach();
@@ -45,6 +45,7 @@ tCCDLoop.detach();
 tMeteo.detach();
 tisACQ.detach();
 tStop.detach();
+tInc.detach();
 
 
 //cout<<param.maxGain<<endl;
