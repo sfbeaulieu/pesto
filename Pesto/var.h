@@ -37,7 +37,7 @@ NcCam myCam;
 NcImage	*myNcImage;
 
 //start the log class
-Log log("/home/pesto/jonathan/log/");
+Log logg("/home/pesto/jonathan/log/");
 
 FW fw;
 

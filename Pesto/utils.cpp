@@ -11,7 +11,7 @@
 
 extern int biasOK;
 extern int caseID,repID,buff1ID,buff2ID,buff3ID,buff4ID,pathID,buff2wayID1,buff2wayID2;//tout les ID des socket
-extern Log log;
+extern Log logg;
 extern pthread_t pth1,pth2;//pense pas qu'on a en encore dde besoin
 extern pthread_t pth3;//the go thread loop
 extern pthread_t pth4;//tcs loop to update struct tcs_var
@@ -43,45 +43,45 @@ caseID = create_socket(case_port);
     if(caseID==-1)
         {
 
-        log.writetoVerbose("Unable to create a socket on port "+std::to_string(case_port));
-        log.writetoVerbose("Shutting down");
+        logg.writetoVerbose("Unable to create a socket on port "+std::to_string(case_port));
+        logg.writetoVerbose("Shutting down");
         return -1;}
 buff1ID = create_socket(buff1_port);
         if(buff1ID==-1){
 
-        log.writetoVerbose("Unable to create a socket on port "+std::to_string(buff1_port));
-        log.writetoVerbose("Shutting down");
+        logg.writetoVerbose("Unable to create a socket on port "+std::to_string(buff1_port));
+        logg.writetoVerbose("Shutting down");
             exit(1);}
 buff2ID = create_socket(buff2_port);
             if(buff2ID==-1){
 
-        log.writetoVerbose("Unable to create a socket on port "+std::to_string(buff2_port));
-        log.writetoVerbose("Shutting down");
+        logg.writetoVerbose("Unable to create a socket on port "+std::to_string(buff2_port));
+        logg.writetoVerbose("Shutting down");
         exit(1);}
 buff3ID = create_socket(buff3_port);
         if(buff3ID==-1){
 
-        log.writetoVerbose("Unable to create a socket on port "+std::to_string(buff3_port));
-        log.writetoVerbose("Shutting down");
+        logg.writetoVerbose("Unable to create a socket on port "+std::to_string(buff3_port));
+        logg.writetoVerbose("Shutting down");
         exit(1);}
 pathID = create_socket(path_port);
         if(pathID==-1){
 
-        log.writetoVerbose("Unable to create a socket on port "+std::to_string(path_port));
-        log.writetoVerbose("Shutting down");
+        logg.writetoVerbose("Unable to create a socket on port "+std::to_string(path_port));
+        logg.writetoVerbose("Shutting down");
         exit(1);}
 
 repID = create_socket(reponse_port);
         if(repID==-1){
-        log.writetoVerbose("Unable to create a socket on port "+std::to_string(reponse_port));
-        log.writetoVerbose("Shutting down");
+        logg.writetoVerbose("Unable to create a socket on port "+std::to_string(reponse_port));
+        logg.writetoVerbose("Shutting down");
         exit(1);}
 
 buff4ID = create_socket(buff4_port);
         if(buff4ID==-1){
 
-        log.writetoVerbose("Unable to create a socket on port "+std::to_string(buff4_port));
-        log.writetoVerbose("Shutting down");
+        logg.writetoVerbose("Unable to create a socket on port "+std::to_string(buff4_port));
+        logg.writetoVerbose("Shutting down");
         exit(1);}
 
 buff2wayID1 = createSocket2way(buff2way1_port);
@@ -132,20 +132,20 @@ int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
     int i,unitNb;
     char serial[256];
     enum CommType commInterface;
-
+    std::cout<<"ok"<<std::endl;
     int unit, channel, width, height, present, error;
 
     // Get the number of available cameras
     error = ncCamGetCameraAvailable(&cameraCount);
     if (error!=0)
     {
-        log.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the number of cameras");
+        logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the number of cameras");
         exit(1);
     }
 
 
         std::cout<<"Found camera: "<<cameraCount<<std::endl;
-    log.writetoVerbose(std::to_string(cameraCount)+" camera found on the network.");
+    logg.writetoVerbose(std::to_string(cameraCount)+" camera found on the network.");
     printf("\n");
     std::cout<<":::::::::::::::::::::::::::::"<<std::endl;
 
@@ -156,28 +156,28 @@ int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
         if (error!=0)
         {
 
-            log.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the serial number of the camera"+std::to_string(i));
+            logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the serial number of the camera"+std::to_string(i));
             exit(1);
         }
 
 
 
-        log.writetoVerbose("("+std::to_string(i)+") Camera SN: "+serial+" is connected with the following parameters:");
+        logg.writetoVerbose("("+std::to_string(i)+") Camera SN: "+serial+" is connected with the following parameters:");
         error = ncCamGetCameraPort(i, &unit, &channel);
         if (error!=0)
         {
             //printf ("Error %d happened while retrieving the port of the camera %s\n", error, serial);
-            log.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (1): "+serial);
+            logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (1): "+serial);
 
             exit(1);
         }
 
-        log.writetoVerbose("Unit: "+std::to_string(unit)+" Channel: "+std::to_string(channel));
+        logg.writetoVerbose("Unit: "+std::to_string(unit)+" Channel: "+std::to_string(channel));
 
         error = ncCamGetCameraCommInterface(i, &commInterface);
         if (error!=0)
         {
-            log.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (2): "+serial);
+            logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (2): "+serial);
             exit(1);
         }
 
@@ -187,7 +187,7 @@ int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
         error = ncCamGetCameraDetectorSize(i, &width, &height);
         if (error!=0)
         {
-            log.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (3): "+serial);
+            logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (3): "+serial);
             exit(1);
         }
 
@@ -196,12 +196,12 @@ int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
         error = ncCamGetCameraPresent(unit, channel, &present);
         if (error!=0)
         {
-            log.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (4): "+serial);
+            logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (4): "+serial);
             exit(1);
         }
 
 
-        log.writetoVerbose("Presence status: "+std::to_string(present));
+        logg.writetoVerbose("Presence status: "+std::to_string(present));
         std::cout<<":::::::::::::::::::::::::::::"<<std::endl;
     }
     std::cout<<"Which unit do you want to use? "<<std::endl;
@@ -209,18 +209,18 @@ int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
     error = ncCamOpen(PT_GIGE+unitNb+1,NC_AUTO_CHANNEL ,nbrBuffer,cam);
             if (error!=0)
             {   if (ncCamOpen(VIRTUAL+unitNb,NC_AUTO_CHANNEL ,nbrBuffer,cam)){
-                log.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (5): "+serial);
+                logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (5): "+serial);
                 exit(1);
                 }
             }
     error = ncCamSetReadoutMode(*cam, param->defROMODE);
     if (error!=0)
     {
-        log.writetoVerbose("Unable to set the readout mode. Shutting down the PESTO... ");
+        logg.writetoVerbose("Unable to set the readout mode. Shutting down the PESTO... ");
         exit(1);
     }
     else
-        log.writetoVerbose("ReadOutMode set to "+std::to_string(param->defROMODE)+" succesfully");
+        logg.writetoVerbose("ReadOutMode set to "+std::to_string(param->defROMODE)+" succesfully");
 
 
 
@@ -230,20 +230,20 @@ int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
 
     if (error!=0)
     {
-        log.writetoVerbose("Unable to get the readout time. Shutting down the PESTO... ");
+        logg.writetoVerbose("Unable to get the readout time. Shutting down the PESTO... ");
         exit(1);
     }
     error = ncCamSetExposureTime(*cam, detParam->readoutTime);
     if (error!=0)
     {
-            log.writetoVerbose("Unable to set the exposure time. Shutting down the PESTO... ");
+            logg.writetoVerbose("Unable to set the exposure time. Shutting down the PESTO... ");
             exit(1);
     }
     // Recover the exposure time for use later
     error = ncCamGetExposureTime(*cam, 1, &detParam->exposureTime);
     if (error)
     {
-        log.writetoVerbose("Unable to get the exposure time. Shutting down the PESTO... ");
+        logg.writetoVerbose("Unable to get the exposure time. Shutting down the PESTO... ");
         exit(1);
     }
 
@@ -252,14 +252,14 @@ int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
     error = ncCamSetWaitingTime(*cam, 0);
     if (error!=0)
     {
-        log.writetoVerbose("Unable to set the waiting time. Shutting down the PESTO... ");
+        logg.writetoVerbose("Unable to set the waiting time. Shutting down the PESTO... ");
     exit(1);
     }
     // Recover the waiting time for use later
     error = ncCamGetWaitingTime(*cam, 1, &detParam->waitingTime);
     if (error!=0)
     {
-        log.writetoVerbose("Unable to get the waiting time of the detector. Shutting down the PESTO... ");
+        logg.writetoVerbose("Unable to get the waiting time of the detector. Shutting down the PESTO... ");
         exit(1);
     }
     // Set a reasonable timeout on reading an image
@@ -268,14 +268,14 @@ int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
     error = ncCamSetTimeout(*cam, detParam->waitingTime + detParam->exposureTime + detParam->readoutTime + 1000.0 );
     if (error!=0)
     {
-        log.writetoVerbose("Unable to set the timeout of the detector. Shutting down the PESTO... ");
+        logg.writetoVerbose("Unable to set the timeout of the detector. Shutting down the PESTO... ");
     exit(1);
     }
     //CLOSE the shutter for the acquisition
     error = ncCamSetShutterMode( *cam, CLOSE );
     if (error!=0)
     {
-        log.writetoVerbose("Unable to close the shutter of the camera. Shutting down the PESTO... ");
+        logg.writetoVerbose("Unable to close the shutter of the camera. Shutting down the PESTO... ");
         exit(1);
     }
     error = ncCamSetTargetDetectorTemp(*cam,param->defCCDTEMP);
@@ -286,7 +286,7 @@ int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
     error = ncCamSaveImageSetHeaderCallback(*cam, saveImageCallback, cam);
     if (error!=0)
     {
-        log.writetoVerbose("Unable to set the save image callback . Shutting down");
+        logg.writetoVerbose("Unable to set the save image callback . Shutting down");
         exit(1);
     }
 
@@ -300,7 +300,7 @@ int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
 
 
 int initVariable(struct initParam *param,struct camParam *detParam){
-    if (log.isFile("/home/initPesto/init.txt")){
+    if (logg.isFile("/home/initPesto/init.txt")){
         //cherche les variables
         std::ifstream file("/home/initPesto/init.txt");
         std::string str;
@@ -337,7 +337,7 @@ int initVariable(struct initParam *param,struct camParam *detParam){
     }
     else
     {
-        log.writetoVerbose("init.txt has not been found. The position of the filter wheel will not be recorded in the header. The initialize parameters will be set to the hard coded value. Please refer to the documentation for more details");
+        logg.writetoVerbose("init.txt has not been found. The position of the filter wheel will not be recorded in the header. The initialize parameters will be set to the hard coded value. Please refer to the documentation for more details");
     }
 
     if (!param->maxGain){param->maxGain=500;}
@@ -481,9 +481,9 @@ if (tm.tm_hour>=12){
     if (mode==5){name+="Video/";}
     if (mode==6){name+="Other/";}
 }
-//if (!log.isFolder(name))
+//if (!logg.isFolder(name))
 //{
-//    log.createFolder(name);
+//    logg.createFolder(name);
 //}
 
 return name;}
@@ -498,13 +498,13 @@ int selectTimeStamp(NcCam *cam,int mode){
     {   error = ncCamSetTimestampMode(*cam, GPS_TIMESTAMP);
         if (error!=0)
         {
-         log.writetoVerbose("Unable to set the gps timestamp.");
-         log.writeto("Nuvu error: "+std::to_string(error));
+         logg.writetoVerbose("Unable to set the gps timestamp.");
+         logg.writeto("Nuvu error: "+std::to_string(error));
          return -1;
         }
         else
         {
-            log.writetoVerbose("GPS timestamp set succesfully.");
+            logg.writetoVerbose("GPS timestamp set succesfully.");
             return 0;
         }
     }
@@ -513,13 +513,13 @@ int selectTimeStamp(NcCam *cam,int mode){
         error = ncCamSetTimestampMode(*cam, INTERNAL_TIMESTAMP);
         if (error!=0)
         {
-            log.writetoVerbose("Unable to set the internal timestamp.");
-            log.writeto("Nuvu error: "+std::to_string(error));
+            logg.writetoVerbose("Unable to set the internal timestamp.");
+            logg.writeto("Nuvu error: "+std::to_string(error));
             return -1;
         }
         else
         {
-            log.writetoVerbose("Internal timestamp set succesfully.");
+            logg.writetoVerbose("Internal timestamp set succesfully.");
             return 0;
         }
     }
@@ -528,13 +528,13 @@ int selectTimeStamp(NcCam *cam,int mode){
         error = ncCamSetTimestampMode(*cam, NO_TIMESTAMP);
         if (error!=0)
         {
-            log.writetoVerbose("Unable to set no timestamp.");
-            log.writeto("Nuvu error: "+std::to_string(error));
+            logg.writetoVerbose("Unable to set no timestamp.");
+            logg.writeto("Nuvu error: "+std::to_string(error));
             return -1;
         }
         else
         {
-            log.writetoVerbose("No timestamp set succesfully.");
+            logg.writetoVerbose("No timestamp set succesfully.");
             return 0;
         }
     }
@@ -557,7 +557,7 @@ int applyBias(NcCam *cam,struct initParam *param,struct camParam *detParam)
     int toReOpen=0;
     char Ampli[32];
     if (ncCamGetShutterMode(*cam,1,&shutterMode)!=0)
-    {   log.writetoVerbose("Unable to get the shutter mode");
+    {   logg.writetoVerbose("Unable to get the shutter mode");
         return -1;
     }
 
@@ -565,34 +565,34 @@ int applyBias(NcCam *cam,struct initParam *param,struct camParam *detParam)
     {   toReOpen=1;//reopen the the shutter after the acquisition of the bias
         if (ncCamSetShutterMode(*cam,CLOSE)!=0)
         {
-            log.writetoVerbose("Unable to set the shutter mode");
+            logg.writetoVerbose("Unable to set the shutter mode");
             return -1;
         }
 
     }
     if (isInAcq==1)
     {
-        log.writetoVerbose("Unable to start the bias acquisition because an exposition is in progress. Please stop the acquisition first");
+        logg.writetoVerbose("Unable to start the bias acquisition because an exposition is in progress. Please stop the acquisition first");
         return -2;
     }
     else
     {
        if ( ncCamGetCurrentReadoutMode(*cam,&ro_mode,&ncAmpliNo,Ampli,&VerHz,&HorHz)!=0)
-       {    log.writetoVerbose("Unable to get the readout mode");
+       {    logg.writetoVerbose("Unable to get the readout mode");
            return -1;
        }
        if (ro_mode<4 || ro_mode>=12)
        {
            //Em mode
            if (ncCamCreateBias(*cam,param->nbBiasEm,BIAS_DEFAULT)!=0)
-           {    log.writetoVerbose("Unable to start the bias acquisition");
+           {    logg.writetoVerbose("Unable to start the bias acquisition");
                return -1;
            }
            if (detParam->gain>=1000)
            {
                if (ncCamSetProcType(*cam,PC,0)!=0)
                {
-                   log.writeto("Unable to set the processing type of the bias");
+                   logg.writeto("Unable to set the processing type of the bias");
                    return -1;
                }
            }
@@ -600,7 +600,7 @@ int applyBias(NcCam *cam,struct initParam *param,struct camParam *detParam)
            {
                if (ncCamSetProcType(*cam,LM,0)!=0)
                {
-                   log.writeto("Unable to set the processing type of the bias");
+                   logg.writeto("Unable to set the processing type of the bias");
                    return -1;
                }
            }
@@ -608,12 +608,12 @@ int applyBias(NcCam *cam,struct initParam *param,struct camParam *detParam)
        else
        {
            if (ncCamCreateBias(*cam,param->nbBiasConv,BIAS_DEFAULT)!=0)
-           {    log.writetoVerbose("Unable to start the bias acquisition");
+           {    logg.writetoVerbose("Unable to start the bias acquisition");
                return -1;
            }
            if (ncCamSetProcType(*cam,LM,0)!=0)
            {
-               log.writeto("Unable to set the processing type of the bias");
+               logg.writeto("Unable to set the processing type of the bias");
                return -1;
            }
        }
@@ -623,7 +623,7 @@ int applyBias(NcCam *cam,struct initParam *param,struct camParam *detParam)
     {
         if (ncCamSetShutterMode(*cam,OPEN)!=0)
         {
-            log.writetoVerbose("Unable to set the shutter mode");
+            logg.writetoVerbose("Unable to set the shutter mode");
             return -1;
         }
     }
