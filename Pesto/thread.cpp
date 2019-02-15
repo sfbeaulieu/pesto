@@ -31,21 +31,16 @@ extern int threadInc;
 void acquisition(int *mode,int *loop,int *inc){
     //set display
     std::string handle="Display";
-    // uint32_t *im = new uint32_t [128*128];
-    //uint32_t *im;
-    //ncCamAllocUInt32Image(myCam,&im);
     unsigned short int *im = new unsigned short int [128*128];
     unsigned short int *im2 = new unsigned short int [128*128];
     float z1,z2;
     float *im3 = new float [128*128];
-//uint32_t *im2 = new uint32_t [128*128];
     cv::Mat imMat = memVidSetup(im3,128,handle);
 
 
 
     char objectnbr[15];
-    //std::string nameFile;
-    //detParam.object_name= create_name();
+
     std::string racineFN = create_name();
     int error;
     error = ncCamStart(myCam,0);
@@ -126,7 +121,7 @@ display(handle,imMat,*inc);
     std::cout<<"Acquisition stopped"<<std::endl;
     ncCamAbort(myCam);
 
-
+    //closeWindow(handle);
 }
 
 //tel meteo

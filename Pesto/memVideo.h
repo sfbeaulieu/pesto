@@ -8,4 +8,5 @@ void display(std::string handle,cv::Mat matIm,int num);
 void copyArr(unsigned short int *A,unsigned short int *B,int length);
 int randomArray(uint32_t A[]);
 void normalisation (unsigned short int A[],float B [] ,uint size, float z1,float z2);
+void closeWindow(std::string handle);
 #endif // MEMVIDEO_H

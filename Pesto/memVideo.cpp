@@ -8,8 +8,11 @@ using namespace cv;
 
 cv::Mat memVidSetup(float im[], uint size, std::string handle)
 {
+
+    cv::startWindowThread();//to fix the bug where the window does not resize if it's killed inbetween to image sequence
     cv::Mat matIm = cv::Mat(size, size, CV_32F  ,im);
     cv::namedWindow(handle.c_str(),cv::WINDOW_FREERATIO);
+
     return matIm;
 }
 
@@ -18,7 +21,9 @@ void display(std::string handle,cv::Mat matIm,int num)
     char text[50];
     sprintf(text,"Image: %d",num);
     putText(matIm, text,cv::Point(15,15),cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cv::Scalar(200,200,250), 1);
+
     cv::imshow(handle.c_str(),matIm);
+
     cv::waitKey(1);
 
     //std::cout<<matIm<<std::endl;
@@ -54,4 +59,11 @@ void normalisation (unsigned short int A[],float B [] ,uint size, float z1,float
     return;
 }
 
+void closeWindow(std::string handle)
+{
 
+    cv::destroyWindow(handle);
+
+
+
+}
