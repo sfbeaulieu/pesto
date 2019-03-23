@@ -31,11 +31,12 @@ extern int threadInc;
 void acquisition(int *mode,int *loop,int *inc){
     //set display
     std::string handle="Display";
-    unsigned short int *im = new unsigned short int [128*128];
-    unsigned short int *im2 = new unsigned short int [128*128];
+   // unsigned int size_img = 1024;
+    unsigned short int *im = new unsigned short int [1024*1024];
+    unsigned short int *im2 = new unsigned short int [1024*1024];
     float z1,z2;
-    float *im3 = new float [128*128];
-    cv::Mat imMat = memVidSetup(im3,128,handle);
+    float *im3 = new float [1024*1024];
+    cv::Mat imMat = memVidSetup(im3,1024,handle);
 
 
 
@@ -58,7 +59,7 @@ void acquisition(int *mode,int *loop,int *inc){
     switch (*mode){
 
     case 1:
-    {
+    {printf("iciiit!\n");
         isInAcq=1;
         while(*loop)
         {
@@ -71,11 +72,11 @@ void acquisition(int *mode,int *loop,int *inc){
 
             //display image
 //randomArray(im);
-    copyArr(im,im2,128*128);
-    cdl_zscale(im2,128,128,16,&z1,&z2,0.25,100,100);
-    normalisation(im2,im3,128*128,z1,z2);
+    copyArr(im,im2,1024*1024);
+    cdl_zscale(im2,1024,1024,16,&z1,&z2,0.25,100,100);
+    normalisation(im2,im3,1024*1024,z1,z2);
     display(handle,imMat,*inc);
-//display(handle,imMat);
+
 
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
             std::cout<<nameFile<<std::endl;
@@ -100,9 +101,9 @@ void acquisition(int *mode,int *loop,int *inc){
             //ncCamReadUInt32(myCam,im);
         //randomArray(im);
 
-copyArr(im,im2,128*128);
-cdl_zscale(im2,128,128,16,&z1,&z2,0.25,100,100);
-normalisation(im2,im3,128*128,z1,z2);
+copyArr(im,im2,1024*1024);
+cdl_zscale(im2,1024,1024,16,&z1,&z2,0.25,100,100);
+normalisation(im2,im3,1024*1024,z1,z2);
 //display(handle,imMat);
 display(handle,imMat,*inc);
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);

@@ -10,7 +10,8 @@ cv::Mat memVidSetup(float im[], uint size, std::string handle)
 {
 
     cv::startWindowThread();//to fix the bug where the window does not resize if it's killed inbetween to image sequence
-    cv::Mat matIm = cv::Mat(size, size, CV_32F  ,im);
+    cv::Mat matIm = cv::Mat(size, size, CV_32S  ,im);
+	
     cv::namedWindow(handle.c_str(),cv::WINDOW_FREERATIO);
 
     return matIm;
@@ -20,7 +21,7 @@ void display(std::string handle,cv::Mat matIm,int num)
 {   cv::normalize(matIm,matIm,cv::NORM_MINMAX);
     char text[50];
     sprintf(text,"Image: %d",num);
-    putText(matIm, text,cv::Point(15,15),cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cv::Scalar(200,200,250), 1);
+    //putText(matIm, text,cv::Point(15,15),cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cv::Scalar(200,200,250), 1);
 
     cv::imshow(handle.c_str(),matIm);
 
@@ -41,7 +42,7 @@ void copyArr(unsigned short *A, unsigned short *B, int length)
 
 }
 int randomArray(uint32_t A[])
-{   int lim = 128*128;
+{   int lim = 1024*1024;
     for (int i=0 ; i<lim;i++)
     {
         A[i]=rand() % 65000;
