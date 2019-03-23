@@ -17,7 +17,7 @@ using namespace std;
 int main()
 {
 //:::::::::::::::::::::::::::::::: Mode Development :::::::::::::::::::::::::::;
-developpement=1;//0-> release on lyra, 1->mode development
+developpement=0;//0-> release on lyra, 1->mode development
 //:::::::::::::::::::::::::::::::: Mode Development :::::::::::::::::::::::::::;
 
 

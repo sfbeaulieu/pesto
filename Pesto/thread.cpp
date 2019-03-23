@@ -31,7 +31,6 @@ extern int threadInc;
 void acquisition(int *mode,int *loop,int *inc){
     //set display
     std::string handle="Display";
-   // unsigned int size_img = 1024;
     unsigned short int *im = new unsigned short int [1024*1024];
     unsigned short int *im2 = new unsigned short int [1024*1024];
     float z1,z2;
@@ -59,7 +58,7 @@ void acquisition(int *mode,int *loop,int *inc){
     switch (*mode){
 
     case 1:
-    {printf("iciiit!\n");
+    {
         isInAcq=1;
         while(*loop)
         {
@@ -71,10 +70,17 @@ void acquisition(int *mode,int *loop,int *inc){
             //ncCamReadUInt32(myCam,im);
 
             //display image
-//randomArray(im);
+
     copyArr(im,im2,1024*1024);
-    cdl_zscale(im2,1024,1024,16,&z1,&z2,0.25,100,100);
+    cdl_zscale(im2,1024,1024,16,&z1,&z2,0.90    ,1000,1000);
+	std::cout<<z1<<" "<<z2<<std::endl;
+
     normalisation(im2,im3,1024*1024,z1,z2);
+    for (int i=500*1024;i<500*1024+256;i++)
+    {
+        std::cout<<im3[i]<<std::endl;
+
+    }
     display(handle,imMat,*inc);
 
 
@@ -103,6 +109,7 @@ void acquisition(int *mode,int *loop,int *inc){
 
 copyArr(im,im2,1024*1024);
 cdl_zscale(im2,1024,1024,16,&z1,&z2,0.25,100,100);
+std::cout<<z1<<" "<<z2<<std::endl;
 normalisation(im2,im3,1024*1024,z1,z2);
 //display(handle,imMat);
 display(handle,imMat,*inc);
