@@ -67,6 +67,13 @@ struct Meteo{
     char Tm[30];
 
 };
+struct disp{
+    bool zscale;// select zscale or minMax
+    bool text;//display the number of increment on screen
+    bool save;//write image on disk
+
+
+};
 
 
 #endif // STRUCTURE_H

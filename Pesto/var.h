@@ -46,4 +46,5 @@ struct initParam param;
 struct camParam detParam;
 struct TCS tcs_var;
 struct Meteo meteo;
+struct disp display_struct;
 #endif // VAR_H

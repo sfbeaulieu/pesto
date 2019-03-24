@@ -26,7 +26,7 @@ developpement=0;//0-> release on lyra, 1->mode development
 //start everything
 initializeSocket();//initialization des sockets
 
-initVariable(&param,&detParam);//must be called before openCam()
+initVariable(&param,&detParam,&display_struct);//must be called before openCam()
 
 openCam(&myCam,&param,&detParam);//open the connection with the camera
 
@@ -101,7 +101,7 @@ while(1)
             detParam.nbrExp=stoi(buff2);
 
             inc=get_inc(&param);
-            std::thread tACQ(acquisition,&mode,&loop,&inc);
+            std::thread tACQ(acquisition,&mode,&loop,&inc,display_struct);
 
             if(stoi(buff3)==1)
             {

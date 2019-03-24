@@ -11,7 +11,6 @@
 #include "socket.h"
 #include "memVideo.h"
 #include <algorithm>
-#include "zscale.h"
 using namespace std;
 
 extern NcCam myCam;
@@ -28,15 +27,18 @@ extern int threadInc;
 //extern int inc;
 
 //void *acquisition(void *arg){
-void acquisition(int *mode,int *loop,int *inc){
+void acquisition(int *mode, int *loop, int *inc, disp display_struct){
     //set display
-    std::string handle="Display";
-    unsigned short int *im = new unsigned short int [1024*1024];
-    unsigned short int *im2 = new unsigned short int [1024*1024];
-    float z1,z2;
-    float *im3 = new float [1024*1024];
-    cv::Mat imMat = memVidSetup(im3,1024,handle);
+    const uint16_t size=128;
 
+    std::string handle="Display";
+    unsigned short int *im = new unsigned short int [size*size];
+
+    float *im3 = new float [size*size];
+    std::fill(im3, im3 + size*size, 0);
+    cv::Mat imMat = memVidSetup(im3,size,handle);
+    double mean=0;
+    double st = 0;
 
 
     char objectnbr[15];
@@ -69,23 +71,20 @@ void acquisition(int *mode,int *loop,int *inc){
             ncCamRead(myCam, &im);
             //ncCamReadUInt32(myCam,im);
 
-            //display image
 
-    copyArr(im,im2,1024*1024);
-    cdl_zscale(im2,1024,1024,16,&z1,&z2,0.90    ,1000,1000);
-	std::cout<<z1<<" "<<z2<<std::endl;
-
-    normalisation(im2,im3,1024*1024,z1,z2);
-    for (int i=500*1024;i<500*1024+256;i++)
-    {
-        std::cout<<im3[i]<<std::endl;
-
-    }
-    display(handle,imMat,*inc);
+   // cdl_zscale(im,size,size,16,&z1,&z2,0.25    ,100    ,100);
 
 
-            nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
-            std::cout<<nameFile<<std::endl;
+    stats(im,size*size,&mean,&st);
+    //normalisation(im,im3,size*size,z1,z2);
+    //display(handle,imMat,*inc);
+    //std::cout<<mean<<std::endl;
+
+    display(handle,imMat,*inc,im,im3,size,display_struct.text,display_struct.zscale);
+
+    std::cout<<mean<<" " << st<<std::endl;
+    nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
+    std::cout<<nameFile<<std::endl;
             //ncCamSaveImage(myCam, myNcImage,nameFile.c_str(), FITS," " , 1);
             //ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
             //ncCamSaveUInt32Image(myCam,im,nameFile.c_str(),FITS," ",1);
@@ -107,12 +106,20 @@ void acquisition(int *mode,int *loop,int *inc){
             //ncCamReadUInt32(myCam,im);
         //randomArray(im);
 
-copyArr(im,im2,1024*1024);
-cdl_zscale(im2,1024,1024,16,&z1,&z2,0.25,100,100);
-std::cout<<z1<<" "<<z2<<std::endl;
-normalisation(im2,im3,1024*1024,z1,z2);
+//copyArr(im,im2,size*size);
+//cdl_zscale(im,size,size,16,&z1,&z2,0.25,100,100);
+//std::cout<<z1<<" "<<z2<<std::endl;
+stats(im,size*size,&mean,&st);
+std::cout<<"mean: "<<mean<<std::endl;
+std::cout<<"std: "<<st<<std::endl;
+//normalisation(im,im3,size*size,z1,z2);
+
+stats(im3,size*size,&mean,&st);
+std::cout<<"mean (norm): "<<mean<<std::endl;
+std::cout<<"std (norm): "<<st<<std::endl;
 //display(handle,imMat);
-display(handle,imMat,*inc);
+//display(handle,imMat,*inc);
+display(handle,imMat,*inc,im,im3,size,display_struct.text,display_struct.zscale);
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
             //ncCamSaveImage(myCam, myNcImage,nameFile.c_str(), FITS," " , 1);
             //ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);

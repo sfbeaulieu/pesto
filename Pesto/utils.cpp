@@ -299,7 +299,7 @@ int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
 
 
 
-int initVariable(struct initParam *param,struct camParam *detParam){
+int initVariable(struct initParam *param,struct camParam *detParam,struct disp *display_struct){
     if (logg.isFile("/home/initPesto/init.txt")){
         //cherche les variables
         std::ifstream file("/home/initPesto/init.txt");
@@ -369,6 +369,9 @@ int initVariable(struct initParam *param,struct camParam *detParam){
     meteo_loop=1;
     biasOK=0;
     nbrBuffer=64;
+    display_struct->save=true;
+    display_struct->text=false;
+    display_struct->zscale=true;
     //detParam.nbrExp=15;
     isInAcq = 0;
 
