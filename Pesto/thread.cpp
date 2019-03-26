@@ -82,7 +82,7 @@ void acquisition(int *mode, int *loop, int *inc){
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
             //std::cout<<nameFile<<std::endl;
             //ncCamSaveImage(myCam, myNcImage,nameFile.c_str(), FITS," " , 1);
-            //ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
+            ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
         }
         break;
     }
@@ -101,7 +101,7 @@ void acquisition(int *mode, int *loop, int *inc){
             display(handle,imMat,im2,im3,&disp_roi);
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
             //ncCamSaveImage(myCam, myNcImage,nameFile.c_str(), FITS," " , 1);
-            //ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
+            ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
             if (*loop==0){break;}
         }
         break;
