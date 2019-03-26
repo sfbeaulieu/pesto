@@ -3,7 +3,7 @@
 #include <opencv2/highgui.hpp>
 
 cv::Mat memVidSetup( float *&im,const uint16_t size,std::string handle);
-void display(std::string handle,cv::Mat matIm,uint32_t num,unsigned short *im_src,float *&im_dst,struct display_roi *disp_roi);
+void display(std::string handle,cv::Mat matIm,unsigned short *im_src,float *&im_dst,struct display_roi *disp_roi);
 void normalisation (unsigned short int *&A,float *&B ,uint32_t length, float z1,float z2);
 void normalisation_ROI (unsigned short int *&A,float *&B ,int start_dst,int start_src,int width,int height, float z1,float z2);
 void closeWindow(std::string handle);

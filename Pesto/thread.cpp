@@ -13,8 +13,7 @@
 #include "structure.h"
 
 using namespace std;
-#define EM 0
-#define CONV 1
+
 extern NcCam myCam;
 extern NcImage	*myNcImage;
 extern struct camParam detParam;
@@ -31,7 +30,7 @@ extern int threadInc;
 //extern int inc;
 
 //void *acquisition(void *arg){
-void acquisition(int *mode, int *loop, int *inc, disp display_struct){
+void acquisition(int *mode, int *loop, int *inc){
     //set display
     struct display_roi disp_roi;
     const uint16_t size=1024;
@@ -40,13 +39,11 @@ void acquisition(int *mode, int *loop, int *inc, disp display_struct){
     unsigned short int *im = new unsigned short int [size*size];
     unsigned short int *im2 = new unsigned short int [size*size];
     float *im3 = new float [size*size];
+
     std::fill(im3, im3 + size*size, 0);
     std::fill(im2, im2 + size*size, 0);
+
     cv::Mat imMat = memVidSetup(im3,size,handle);
-    double mean=0;
-    double st = 0;
-
-
     char objectnbr[15];
 
     std::string racineFN = create_name();
@@ -56,22 +53,12 @@ void acquisition(int *mode, int *loop, int *inc, disp display_struct){
         logg.writetoVerbose("Unable to start the acquisition");
         return;
     }
-    int ro_mode,VerHz,HorHz;
-    enum Ampli	ncAmpliNo;
-    char Amp[32];
-    if (ncCamGetCurrentReadoutMode(myCam,&ro_mode,&ncAmpliNo,Amp,&VerHz,&HorHz)!=0)
-    {
 
-    }
-    std::cout<<"readout mode: "<<ro_mode<<std::endl;
     std::cout<<"Acquisition started..."<<std::endl;
     if (!logg.isFolder(param.racinePath+detParam.path)){
         logg.createFolder(param.racinePath+detParam.path);
 
     }
-    //ncCamGetSize(myCam,&width_buffer,&height_buffer);
-    //uint32_t length = width_buffer*height_buffer;
-    //std::cout<<length<<" "<<height_buffer<<" "<< width_buffer<<" ::::::::::::::::::::;"<<std::endl;
 
     setupROI(&disp_roi);
 
@@ -87,49 +74,21 @@ void acquisition(int *mode, int *loop, int *inc, disp display_struct){
             sscanf(objectnbr,"%d",&threadInc);
             //ncCamRead(myCam, &myNcImage);
             ncCamRead(myCam, &im);
-            //ncCamReadUInt32(myCam,im);
+
+            copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
+            display(handle,imMat,im2,im3,&disp_roi);
 
 
-   // cdl_zscale(im,size,size,16,&z1,&z2,0.25    ,100    ,100);
-
-
-
-    //normalisation(im,im3,size*size,z1,z2);
-    //display(handle,imMat,*inc);
-    //std::cout<<mean<<std::endl;
-
-            //stats(im,size*size,&mean,&st);
-            std::cout<<"mean: "<<mean<<", std: "<<st<<std::endl;
-    copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
-    display(handle,imMat,1,im2,im3,&disp_roi);
-
-    //stats(im2,size*size,&mean,&st);
-    //std::cout<<"mean: "<<mean<<", std: "<<st<<std::endl;
-//    if (ro_mode>=4 && ro_mode<=11)
-//    {
-//   //     void display(std::string handle,cv::Mat matIm,uint32_t num,float *im_src,float *&im_dst,const uint16_t size,uint8_t ro_mode,bool text=false,bool zscale=true);
-
-//      display(handle,imMat,*inc,im2,im3,size,CONV,display_struct.text,display_struct.zscale);
-//    }
-//    else
-//    {
-//        display(handle,imMat,*inc,im2,im3,size,EM,display_struct.text,display_struct.zscale);
-//    }
-
-
-    //std::cout<<mean<<" " << st<<std::endl;
-    nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
-    std::cout<<nameFile<<std::endl;
+            nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
+            //std::cout<<nameFile<<std::endl;
             //ncCamSaveImage(myCam, myNcImage,nameFile.c_str(), FITS," " , 1);
             //ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
-            //ncCamSaveUInt32Image(myCam,im,nameFile.c_str(),FITS," ",1);
-
         }
         break;
     }
 
     case 2:
-    {std::cout<<"case 2"<<std::endl;
+    {
         isInAcq=1;
 
         for (int i=0;i<=detParam.nbrExp;i++)
@@ -138,35 +97,11 @@ void acquisition(int *mode, int *loop, int *inc, disp display_struct){
             sprintf(objectnbr,"%.10d",*inc);
            // ncCamRead(myCam, &myNcImage);
             ncCamRead(myCam, &im);
-            //ncCamReadUInt32(myCam,im);
-        //randomArray(im);
-
-//copyArr(im,im2,size*size);
-//cdl_zscale(im,size,size,16,&z1,&z2,0.25,100,100);
-//std::cout<<z1<<" "<<z2<<std::endl;
-//stats(im,size*size,&mean,&st);
-//std::cout<<"mean: "<<mean<<std::endl;
-//std::cout<<"std: "<<st<<std::endl;
-//normalisation(im,im3,size*size,z1,z2);
-
-//stats(im3,size*size,&mean,&st);
-//std::cout<<"mean (norm): "<<mean<<std::endl;
-//std::cout<<"std (norm): "<<st<<std::endl;
-//display(handle,imMat);
-//display(handle,imMat,*inc);
-//if (ro_mode>=4 && ro_mode<=11)
-//{
-//  display(handle,imMat,*inc,im2,im3,size,CONV,display_struct.text,display_struct.zscale);
-//}
-//else
-//{
-//    display(handle,imMat,*inc,im2,im3,size,EM,display_struct.text,display_struct.zscale);
-//}
+            copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
+            display(handle,imMat,im2,im3,&disp_roi);
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
             //ncCamSaveImage(myCam, myNcImage,nameFile.c_str(), FITS," " , 1);
             //ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
-            std::cout<<nameFile<<std::endl;
-            //ncCamSaveUInt32Image(myCam,im,nameFile.c_str(),FITS," ",1);
             if (*loop==0){break;}
         }
         break;

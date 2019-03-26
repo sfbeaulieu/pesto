@@ -55,7 +55,7 @@ void stats(float A[], uint32_t length, double *mean, double *std){
 void normalisation (unsigned short int *&A, float *&B ,  uint32_t length, float z1, float z2)
 {
 
-    for (auto i=0;i<length;i++)
+    for (uint32_t i=0;i<length;i++)
     {
         B[i]=((float)A[i]-z1)/(z2-z1);
     }
@@ -69,13 +69,13 @@ void normalisation_ROI (unsigned short int *&A,float *&B ,int start_dst,int star
     }
     return;
 }
-void display(std::string handle,cv::Mat matIm,uint32_t num,unsigned short *im_src,float *&im_dst,struct display_roi *disp_roi)
+void display(std::string handle,cv::Mat matIm,unsigned short *im_src,float *&im_dst,struct display_roi *disp_roi)
 {
     float z1,z2;
 //    if (text)
 //    {
 //        char text[50];
-//        sprintf(text,"Image: %d",num);
+//        sprintf(text,"Image: %d",disp_roi->num);
 //        putText(matIm, text,cv::Point(15,15),cv::FONT_HERSHEY_COMPLEX_SMALL, 4.0, cv::Scalar(200,200,250), 1);
 //    }
     cdl_zscale(im_src,disp_roi->buff_width,disp_roi->buff_height,16,&z1,&z2,0.25,1000,1000);
@@ -86,9 +86,6 @@ void display(std::string handle,cv::Mat matIm,uint32_t num,unsigned short *im_sr
     if (disp_roi->buff_height!=disp_roi->buff_width)
     {
         int start_src = 0;
-        uint16_t total_offset,buffer_start;
-        total_offset=0;
-        buffer_start=0;
         std::fill(im_dst, im_dst + disp_roi->buff_width*disp_roi->buff_width, 0);
         for (auto i=1;i<=disp_roi->count;i++)
         {
@@ -154,12 +151,20 @@ void setupROI(struct display_roi *disp_roi)
             disp_roi->offsetx[i]=offx;
 
         }
-    }
 
+    }
+    std::cout<<"buffer size : height="<<disp_roi->buff_height<<" width="<<disp_roi->buff_width<<std::endl;
+    std::cout<<"listing "<<disp_roi->count<<" roi"<<std::endl;
+    for (int i=0;i<disp_roi->count;i++)
+    {   std::cout<<""<<std::endl;
+        std::cout<<"roi # "<<i+1<<std::endl;
+        std::cout<<"offset (x,y) :"<<disp_roi->offsetx[i]<<" , "<< disp_roi->offsety[i]<<std::endl;
+        std::cout<<"size (width x heigth)"<<disp_roi->width[i]<<" x "<<disp_roi->height[i]<<std::endl;
+    }
 }
 void copy_array(unsigned short int *im,unsigned short int *&im2,uint32_t length)
 {
-    for (auto i=0;i<length;i++)
+    for (uint32_t i=0;i<length;i++)
     {
         im2[i]=im[i];
     }

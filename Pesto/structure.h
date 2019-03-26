@@ -1,6 +1,6 @@
 #ifndef STRUCTURE_H
 #define STRUCTURE_H
-
+#include <stdint.h>
 struct camera{
     int xPxSize;
     int yPxSize;
@@ -83,7 +83,7 @@ struct display_roi{
     int buff_height;
     int width[8];
     int height[8];
-
+    uint32_t num;
 
 };
 
