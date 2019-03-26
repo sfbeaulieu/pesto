@@ -74,6 +74,17 @@ struct disp{
 
 
 };
+struct display_roi{
+    int offsetx[8];
+    int offsety[8];
+    int count;
+    int ro_mode;
+    int buff_width;
+    int buff_height;
+    int width[8];
+    int height[8];
 
+
+};
 
 #endif // STRUCTURE_H
