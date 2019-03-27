@@ -1,49 +1,66 @@
 
 #include "nc_driver.h"
 #include "utils.h"
-
-#include "structure.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
 #include <stdlib.h>
 #include "log.h"
 #include "socket.h"
+#include "memVideo.h"
+#include <algorithm>
+#include "structure.h"
 
+using namespace std;
 
 extern NcCam myCam;
 extern NcImage	*myNcImage;
 extern struct camParam detParam;
 extern struct initParam param;
-extern Log log;
+extern Log logg;
 extern int isInAcq,buffAcQ_port,buffAcQ,buffStop_port,buffStop,buffInc,buffInc_port;
 extern int tcs_loop,meteo_loop;
 extern std::string adress_tcs;
 extern std::string nameFile;
+extern display_roi disp_roi;
+
 extern int threadInc;
 //extern int loop;
 //extern int inc;
 
 //void *acquisition(void *arg){
-void acquisition(int *mode,int *loop,int *inc){
-    //std::cout<<*mode<<std::endl;
+void acquisition(int *mode, int *loop, int *inc){
+    //set display
+    struct display_roi disp_roi;
+    const uint16_t size=1024;
 
+    std::string handle="Display";
+    unsigned short int *im = new unsigned short int [size*size];
+    unsigned short int *im2 = new unsigned short int [size*size];
+    float *im3 = new float [size*size];
+
+    std::fill(im3, im3 + size*size, 0);
+    std::fill(im2, im2 + size*size, 0);
+
+    cv::Mat imMat = memVidSetup(im3,size,handle);
     char objectnbr[15];
-    //std::string nameFile;
-    //detParam.object_name= create_name();
+
     std::string racineFN = create_name();
     int error;
     error = ncCamStart(myCam,0);
     if (error){
-        log.writetoVerbose("Unable to start the acquisition");
+        logg.writetoVerbose("Unable to start the acquisition");
         return;
     }
-    std::cout<<"Acquisition started..."<<std::endl;
 
-    if (!log.isFolder(param.racinePath+detParam.path)){
-        log.createFolder(param.racinePath+detParam.path);
+    std::cout<<"Acquisition started..."<<std::endl;
+    if (!logg.isFolder(param.racinePath+detParam.path)){
+        logg.createFolder(param.racinePath+detParam.path);
 
     }
+
+    setupROI(&disp_roi);
 
     switch (*mode){
 
@@ -55,10 +72,17 @@ void acquisition(int *mode,int *loop,int *inc){
             *inc+=1;
             sprintf(objectnbr,"%.10d",*inc);
             sscanf(objectnbr,"%d",&threadInc);
-            ncCamRead(myCam, &myNcImage);
-            nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
-            ncCamSaveImage(myCam, myNcImage,nameFile.c_str(), FITS," " , 1);
+            //ncCamRead(myCam, &myNcImage);
+            ncCamRead(myCam, &im);
 
+            copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
+            display(handle,imMat,im2,im3,&disp_roi);
+
+
+            nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
+            //std::cout<<nameFile<<std::endl;
+            //ncCamSaveImage(myCam, myNcImage,nameFile.c_str(), FITS," " , 1);
+            ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
         }
         break;
     }
@@ -71,9 +95,13 @@ void acquisition(int *mode,int *loop,int *inc){
         {
             *inc+=1;
             sprintf(objectnbr,"%.10d",*inc);
-            ncCamRead(myCam, &myNcImage);
+           // ncCamRead(myCam, &myNcImage);
+            ncCamRead(myCam, &im);
+            copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
+            display(handle,imMat,im2,im3,&disp_roi);
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
-            ncCamSaveImage(myCam, myNcImage,nameFile.c_str(), FITS," " , 1);
+            //ncCamSaveImage(myCam, myNcImage,nameFile.c_str(), FITS," " , 1);
+            ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
             if (*loop==0){break;}
         }
         break;
@@ -85,7 +113,7 @@ void acquisition(int *mode,int *loop,int *inc){
     std::cout<<"Acquisition stopped"<<std::endl;
     ncCamAbort(myCam);
 
-
+    //closeWindow(handle);
 }
 
 //tel meteo
@@ -109,8 +137,8 @@ void tcs(struct TCS *tcs_var)
             if (strncmp(read.c_str(),"ANSW",4)!=0){
                  conteur+=1;
                  if (conteur>30){
-                 log.writetoVerbose("BonOMM is not responsive to Pesto's querries for more than 120 sec. Please make sure BonOMM is open.");
-                 log.writetoVerbose("If the problem persist, restart the PineNuts and Pesto software.");
+                 logg.writetoVerbose("BonOMM is not responsive to Pesto's querries for more than 120 sec. Please make sure BonOMM is open.");
+                 logg.writetoVerbose("If the problem persist, restart the PineNuts and Pesto software.");
                 }
             }
             else
@@ -163,8 +191,8 @@ void tcs(struct TCS *tcs_var)
             sleep(2);
             if (conteur>30)
             {
-                log.writetoVerbose("Unable to communicate with TCS for more than 120 sec. Please make sure BonOMM is open.");
-                log.writetoVerbose("If the problem persist, restart the PineNuts and Pesto software.");
+                logg.writetoVerbose("Unable to communicate with TCS for more than 120 sec. Please make sure BonOMM is open.");
+                logg.writetoVerbose("If the problem persist, restart the PineNuts and Pesto software.");
             }
         }
     }
@@ -191,7 +219,7 @@ void meteoThread(struct Meteo *meteo)
         if (strncmp(read.c_str(),"ANSW",4)!=0)
         {
             //std::cout<<"Unable to communicate with TCS"<<std::endl;
-            log.writeto("In meteo()-- Unable to communicate with TCS");
+            logg.writeto("In meteo()-- Unable to communicate with TCS");
         }
         else{
         length = stoi(read.substr(4,8));
@@ -238,7 +266,7 @@ void ccdTemp(struct camParam *detParam){
         {   count++;
             if (count>10)
             {
-                log.writetoVerbose("Unable to read the emccd temp");
+                logg.writetoVerbose("Unable to read the emccd temp");
             }
         }
 
@@ -270,8 +298,8 @@ void isAcqOnGoing(int *ongoing)
     buffAcQ = create_socket(buffAcQ_port);
     if(buffAcQ==-1)
     {
-        log.writetoVerbose("Unable to create a socket on port "+std::to_string(buffAcQ_port));
-        log.writetoVerbose("Shutting down");
+        logg.writetoVerbose("Unable to create a socket on port "+std::to_string(buffAcQ_port));
+        logg.writetoVerbose("Shutting down");
         exit(1);
     }
     std::string REP,dummy;
@@ -296,8 +324,8 @@ void threadStop(int *close,int *isInAcq)
     buffStop = create_socket(buffStop_port);
     if(buffStop==-1)
     {
-        log.writetoVerbose("Unable to create a socket on port "+std::to_string(buffStop_port));
-        log.writetoVerbose("Shutting down");
+        logg.writetoVerbose("Unable to create a socket on port "+std::to_string(buffStop_port));
+        logg.writetoVerbose("Shutting down");
         exit(1);
     }
     std::string REP,dummy;
@@ -306,7 +334,7 @@ void threadStop(int *close,int *isInAcq)
     {
         if(read_socket(&REP,buffStop)!=0){break;}
         if(atoi(REP.c_str())==0)
-        {
+        {   std::cout<<"ok--"<<std::endl;
             *close=0;
             while(*isInAcq){
                 std::cout<<"waiting for the end of the acquisition..."<<std::endl;
@@ -327,8 +355,8 @@ void getInc(int *incVar)
     buffInc = create_socket(buffInc_port);
     if(buffInc==-1)
     {
-        log.writetoVerbose("Unable to create a socket on port "+std::to_string(buffInc_port));
-        log.writetoVerbose("Shutting down");
+        logg.writetoVerbose("Unable to create a socket on port "+std::to_string(buffInc_port));
+        logg.writetoVerbose("Shutting down");
         exit(1);
     }
     std::string REP,dummy;
@@ -348,3 +376,4 @@ void getInc(int *incVar)
 
     }
 }
+

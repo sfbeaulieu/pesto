@@ -1,3 +1,4 @@
+#include "memVideo.h"
 #include "nc_driver.h"
 #include <iostream>
 #include <pthread.h>
@@ -24,7 +25,9 @@ developpement=0;//0-> release on lyra, 1->mode development
 
 //start everything
 initializeSocket();//initialization des sockets
+
 initVariable(&param,&detParam);//must be called before openCam()
+
 openCam(&myCam,&param,&detParam);//open the connection with the camera
 
 
@@ -55,28 +58,28 @@ while(1)
         case 1:
     {
             if(read_socket(&buff1,buff1ID)!=0)
-            {   log.writetoVerbose("unable to read the argument buffer");
+            {   logg.writetoVerbose("unable to read the argument buffer");
                 sprintf(cWRITE,"%d",-1);
                 WRITE = cWRITE;
                 read2way(repID,&WRITE,WRITE);
                 break;
             }
             if(read_socket(&buff2,buff2ID)!=0)
-            {   log.writetoVerbose("unable to read the argument buffer");
+            {   logg.writetoVerbose("unable to read the argument buffer");
                 sprintf(cWRITE,"%d",-1);
                 WRITE = cWRITE;
                 read2way(repID,&WRITE,WRITE);
                 break;
             }
             if(read_socket(&buff3,buff3ID)!=0)
-            {   log.writetoVerbose("unable to read the argument buffer");
+            {   logg.writetoVerbose("unable to read the argument buffer");
                 sprintf(cWRITE,"%d",-1);
                 WRITE = cWRITE;
                 read2way(repID,&WRITE,WRITE);
                 break;
             }
             if(read_socket(&buff4,buff4ID)!=0)
-            {   log.writetoVerbose("unable to read the argument buffer");
+            {   logg.writetoVerbose("unable to read the argument buffer");
                 sprintf(cWRITE,"%d",-1);
                 WRITE = cWRITE;
                 read2way(repID,&WRITE,WRITE);
@@ -123,7 +126,7 @@ while(1)
         case 2://set exposure time
         {
             if(read_socket(&buff1,buff1ID)!=0)
-            {   log.writetoVerbose("unable to read the argument buffer");
+            {   logg.writetoVerbose("unable to read the argument buffer");
                 break;
             }
             detParam.exposureTime=stod(buff1);
@@ -155,7 +158,7 @@ while(1)
     }
     case 4:// close the camera
     {
-        if(ncCamSetShutterMode( myCam, CLOSE )!=0){log.writetoVerbose("Unable to close the camera shutter");}
+        if(ncCamSetShutterMode( myCam, CLOSE )!=0){logg.writetoVerbose("Unable to close the camera shutter");}
         loop=0;//request an exit of the acquisition thread loop
         while(isInAcq)
         {
@@ -163,7 +166,7 @@ while(1)
             delay(1000);
         }
         if (ncCamClose(myCam) != 0)
-        {log.writetoVerbose("Unable to close the camera");
+        {logg.writetoVerbose("Unable to close the camera");
         //destroy all the thread
 
             return -1;}
@@ -175,7 +178,7 @@ while(1)
     case 5://Set Temperature
     {   biasOK=0;
         if(read_socket(&buff1,buff1ID)!=0)
-        {   log.writetoVerbose("unable to read the argument buffer (SET_CCDT)");
+        {   logg.writetoVerbose("unable to read the argument buffer (SET_CCDT)");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -183,7 +186,7 @@ while(1)
         }
         detParam.ccdTemp=stod(buff1);
         if (detParam.ccdTemp>=-20 || detParam.ccdTemp<=-90)
-        {   log.writetoVerbose("The requested temperature is out of range");
+        {   logg.writetoVerbose("The requested temperature is out of range");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -209,7 +212,7 @@ while(1)
     case 6://get temperature
     {   if (ncCamGetDetectorTemp(myCam,&detParam.ccdTemp)!=0)
         {
-            log.writetoVerbose("Failed to fetch the ccd temperature (GET_CCDT)");
+            logg.writetoVerbose("Failed to fetch the ccd temperature (GET_CCDT)");
             break;
         }
         else
@@ -224,7 +227,7 @@ while(1)
     case 7://set object name
     {
         if(read_socket(&buff1,buff1ID)!=0)
-        {   log.writeto("unable to read the argument buffer (SET_OBJ)");
+        {   logg.writeto("unable to read the argument buffer (SET_OBJ)");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -242,7 +245,7 @@ while(1)
     case 8://set Time stamp
     {   biasOK=0;
         if(read_socket(&buff1,buff1ID)!=0)
-        {   log.writeto("unable to read the argument buffer (SET_TSTAMP)");
+        {   logg.writeto("unable to read the argument buffer (SET_TSTAMP)");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -280,7 +283,7 @@ while(1)
     {   int gain;
         biasOK=0;
         if(read_socket(&buff1,buff1ID)!=0)
-        {   log.writeto("unable to read the argument buffer (SET_GAIN)");
+        {   logg.writeto("unable to read the argument buffer (SET_GAIN)");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -291,7 +294,7 @@ while(1)
         {
             if (ncCamSetCalibratedEmGain(myCam,gain)!=0)
             {
-                log.writeto("unable to set the EM GAIN");
+                logg.writeto("unable to set the EM GAIN");
                 sprintf(cWRITE,"%d",-1);
                 WRITE = cWRITE;
                 read2way(repID,&WRITE,WRITE);
@@ -307,7 +310,7 @@ while(1)
         }
         else
         {
-            log.writeto("The requested gain is out of range");
+            logg.writeto("The requested gain is out of range");
             sprintf(cWRITE,"%d",-2);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -319,7 +322,7 @@ while(1)
     {   int gain;
         if (ncCamGetCalibratedEmGain(myCam,1,&gain)!=0)
         {
-            log.writeto("Unable to retriev the gain");
+            logg.writeto("Unable to retriev the gain");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -339,7 +342,7 @@ while(1)
     {
         if(ncCamSetShutterMode(myCam,OPEN)!=0)
         {
-            log.writeto("Unable to open the shutter");
+            logg.writeto("Unable to open the shutter");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -358,7 +361,7 @@ while(1)
     {
         if(ncCamSetShutterMode(myCam,CLOSE)!=0)
         {
-            log.writeto("Unable to open the shutter");
+            logg.writeto("Unable to open the shutter");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -377,7 +380,7 @@ while(1)
     {   int ro;
         biasOK=0;
         if(read_socket(&buff1,buff1ID)!=0)
-        {   log.writeto("unable to read the argument buffer (SET_RO)");
+        {   logg.writeto("unable to read the argument buffer (SET_RO)");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -388,7 +391,7 @@ while(1)
         {
             if (ncCamSetReadoutMode(myCam, ro)!=0)
             {
-                log.writeto("unable to set the readout mode");
+                logg.writeto("unable to set the readout mode");
                 sprintf(cWRITE,"%d",-1);
                 WRITE = cWRITE;
                 read2way(repID,&WRITE,WRITE);
@@ -402,7 +405,7 @@ while(1)
         }
         else
         {
-            log.writeto("read out mode is out of range.\n");
+            logg.writeto("read out mode is out of range.\n");
             sprintf(cWRITE,"%d",-2);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -413,7 +416,7 @@ while(1)
     case 15:// filter wheel
     {
         if(read_socket(&buff1,buff1ID)!=0)
-        {   log.writetoVerbose("unable to read the argument buffer (filter wheel).\n");
+        {   logg.writetoVerbose("unable to read the argument buffer (filter wheel).\n");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -427,7 +430,7 @@ while(1)
             sprintf(cWRITE,"%d",fw.position(stoi(buff1)));
             if (atoi(cWRITE)==-1)
             {
-                log.writetoVerbose("Failed to set the filter.\n");
+                logg.writetoVerbose("Failed to set the filter.\n");
                 detParam.current_filter="N/A";
             }
             else
@@ -473,7 +476,7 @@ while(1)
                 sprintf(cWRITE,"%d",fw.home());
                 if (atoi(cWRITE)==-1)
                 {
-                    log.writetoVerbose("Failed to set the filter.\n");
+                    logg.writetoVerbose("Failed to set the filter.\n");
                     detParam.current_filter="N/A";
                 }
                 else
@@ -486,7 +489,7 @@ while(1)
                 sprintf(cWRITE,"%d",fw.get_position());
                 if (atoi(cWRITE)==-1)
                 {
-                    log.writetoVerbose("Unable to get the position of the filter wheel.\n");
+                    logg.writetoVerbose("Unable to get the position of the filter wheel.\n");
                     detParam.current_filter="N/A";
                 }
             }
@@ -496,7 +499,7 @@ while(1)
                 sprintf(cWRITE,"%d",fw.increment());
                 if (atoi(cWRITE)==-1)
                 {
-                    log.writetoVerbose("Failed to set the filter.\n");
+                    logg.writetoVerbose("Failed to set the filter.\n");
                     detParam.current_filter="N/A";
                 }
                 else
@@ -522,7 +525,7 @@ while(1)
     }
     case 16://connect a device FW()
     {   if(read_socket(&buff1,buff1ID)!=0)
-        {   log.writetoVerbose("unable to read the argument buffer (connect device)");
+        {   logg.writetoVerbose("unable to read the argument buffer (connect device)");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -536,11 +539,11 @@ while(1)
 
         if (WRITE=="0")
         {
-            log.writeto("A new filter device has been connected succesfully");
+            logg.writeto("A new filter device has been connected succesfully");
         }
         else
         {
-            log.writeto("Failed to connect a new filter device");
+            logg.writeto("Failed to connect a new filter device");
         }
         break;
 
@@ -548,7 +551,7 @@ while(1)
     case 17://close connection
     {
         if(read_socket(&buff1,buff1ID)!=0)
-        {   log.writetoVerbose("unable to read the argument buffer (connect device)");
+        {   logg.writetoVerbose("unable to read the argument buffer (connect device)");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -562,14 +565,14 @@ while(1)
         read2way(repID,&WRITE,WRITE);
         if (WRITE!="0")
         {
-            log.writetoVerbose("Failed to close to disconnect the filter server");
+            logg.writetoVerbose("Failed to close to disconnect the filter server");
         }
         break;
     }
     case 18://set the name of the observateur
     {
         if(read_socket(&buff1,buff1ID)!=0)
-        {   log.writetoVerbose("unable to read the argument buffer (observateur)");
+        {   logg.writetoVerbose("unable to read the argument buffer (observateur)");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -579,7 +582,7 @@ while(1)
         else
         {
             detParam.observateur=buff1;
-            log.writetoVerbose("new Observer set succesfully");
+            logg.writetoVerbose("new Observer set succesfully");
             sprintf(cWRITE,"%d",0);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -589,7 +592,7 @@ while(1)
     case 19://set the telescope operator
     {
         if(read_socket(&buff1,buff1ID)!=0)
-        {   log.writetoVerbose("unable to read the argument buffer (operator)");
+        {   logg.writetoVerbose("unable to read the argument buffer (operator)");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -598,7 +601,7 @@ while(1)
         else
         {
             detParam.Operator=buff1;
-            log.writetoVerbose("new operator set succesfully");
+            logg.writetoVerbose("new operator set succesfully");
             sprintf(cWRITE,"%d",0);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -611,7 +614,7 @@ while(1)
         enum Ampli	ncAmpliNo;
         char Amp[32];
         if(read_socket(&buff1,buff1ID)!=0)
-        {   log.writetoVerbose("unable to read the argument buffer (send readout mode)");
+        {   logg.writetoVerbose("unable to read the argument buffer (send readout mode)");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -619,7 +622,7 @@ while(1)
         }
         if (ncCamGetCurrentReadoutMode(myCam,&ro_mode,&ncAmpliNo,Amp,&VerHz,&HorHz)!=0)
         {
-            log.writetoVerbose("Failed to retrieve the readout mode");
+            logg.writetoVerbose("Failed to retrieve the readout mode");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -630,7 +633,7 @@ while(1)
             sprintf(cWRITE,"%d",ro_mode);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
-            log.writeto("Readout mode is: "+std::to_string(ro_mode));
+            logg.writeto("Readout mode is: "+std::to_string(ro_mode));
         }
 
         break;
@@ -660,14 +663,14 @@ while(1)
         int roiHeight;
         biasOK=0;
         if(read_socket(&buff1,buff1ID)!=0)
-        {   log.writetoVerbose("unable to read the argument buffer (ROI)");
+        {   logg.writetoVerbose("unable to read the argument buffer (ROI)");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
             break;
         }
         if(read_socket(&buff2,buff2ID)!=0)
-        {   log.writetoVerbose("unable to read the argument buffer (ROI)");
+        {   logg.writetoVerbose("unable to read the argument buffer (ROI)");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);
@@ -681,7 +684,7 @@ while(1)
         {
             if (ncCamAbort(myCam)!=0)
             {
-                log.writetoVerbose("Unable to abort the camera\n");
+                logg.writetoVerbose("Unable to abort the camera\n");
                 sprintf(cWRITE,"%d",-1);
                 WRITE = cWRITE;
                 read2way(repID,&WRITE,WRITE);
@@ -699,7 +702,7 @@ while(1)
            sprintf(cWRITE,"%d",-1);
            WRITE = cWRITE;
            read2way(repID,&WRITE,WRITE);
-           log.writetoVerbose("unable to query the camera");
+           logg.writetoVerbose("unable to query the camera");
            break;
 
        }
@@ -745,7 +748,7 @@ while(1)
 
        WRITE = dummy;
        read2way(repID,&WRITE,WRITE);
-       log.writetoVerbose("ROI created succesfully");
+       logg.writetoVerbose("ROI created succesfully");
 
 
         break;
@@ -756,7 +759,7 @@ while(1)
         if (ncCamGetExposureTime(myCam, 1, &current_exposureT)!=0 || ncCamGetReadoutTime(myCam, &current_readoutT)!=0)
         {
             sprintf(cWRITE,"%d",-1);
-            log.writetoVerbose("unable to query the camera");
+            logg.writetoVerbose("unable to query the camera");
         }
 
         else
@@ -801,7 +804,7 @@ while(1)
     case 25://overide filterposition
     {
         if(read_socket(&buff1,buff1ID)!=0)
-        {   log.writetoVerbose("unable to read the argument buffer (ROI)");
+        {   logg.writetoVerbose("unable to read the argument buffer (ROI)");
             sprintf(cWRITE,"%d",-1);
             WRITE = cWRITE;
             read2way(repID,&WRITE,WRITE);

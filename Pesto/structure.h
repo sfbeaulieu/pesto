@@ -1,6 +1,6 @@
 #ifndef STRUCTURE_H
 #define STRUCTURE_H
-
+#include <stdint.h>
 struct camera{
     int xPxSize;
     int yPxSize;
@@ -67,6 +67,24 @@ struct Meteo{
     char Tm[30];
 
 };
+struct disp{
+    bool zscale;// select zscale or minMax
+    bool text;//display the number of increment on screen
+    bool save;//write image on disk
 
+
+};
+struct display_roi{
+    int offsetx[8];
+    int offsety[8];
+    int count;
+    int ro_mode;
+    int buff_width;
+    int buff_height;
+    int width[8];
+    int height[8];
+    uint32_t num;
+
+};
 
 #endif // STRUCTURE_H

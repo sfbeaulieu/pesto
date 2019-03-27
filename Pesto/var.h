@@ -37,7 +37,7 @@ NcCam myCam;
 NcImage	*myNcImage;
 
 //start the log class
-Log log("/home/pesto/jonathan/log/");
+Log logg("/home/pesto/jonathan/log/");
 
 FW fw;
 
@@ -46,4 +46,5 @@ struct initParam param;
 struct camParam detParam;
 struct TCS tcs_var;
 struct Meteo meteo;
+struct disp display_struct;
 #endif // VAR_H

@@ -9,12 +9,21 @@ SOURCES += \
     utils.cpp \
     log.cpp \
     thread.cpp \
-    fw.cpp
+    fw.cpp \
+    memVideo.cpp \
+    zscale.c
 
 #pour Lyra
 #win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../opt/NuvuCameras/lib/release/ -lnuvu
 #else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../opt/NuvuCameras/lib/debug/ -lnuvu
 #else:unix: LIBS += -L$$PWD/../../../../../opt/NuvuCameras/lib/ -lnuvu
+
+INCLUDEPATH += \
+        /usr/local/include/opencv4 \
+        /usr/local/include/opencv4/opencv2 \
+        /usr/local/include/
+LIBS += -L/usr/local/lib/ -L/opt/opencv/release/ -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_stitching -lopencv_imgcodecs
+
 
 #pour macbook-pro
 win32:CONFIG(release, debug|release): LIBS += -L/opt/NuvuCameras/lib/release/ -lnuvu
@@ -40,6 +49,12 @@ HEADERS += \
     log.h \
     structure.h \
     thread.h \
-    fw.h
+    fw.h \
+    memVideo.h \
+    zscale.h
 
+#INCLUDEPATH += $$PWD/../../../../../../usr/local/include
+#DEPENDPATH += $$PWD/../../../../../../usr/local/include
 
+#INCLUDEPATH += $$PWD/../../../../../../usr/include
+#DEPENDPATH += $$PWD/../../../../../../usr/include

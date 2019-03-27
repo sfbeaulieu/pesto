@@ -9,4 +9,5 @@ void meteoThread(struct Meteo *meteo);
 void isAcqOnGoing(int *ongoing);
 void threadStop(int *close,int *isInAcq);
 void getInc(int *incVar);
+
 #endif // THREAD_H
