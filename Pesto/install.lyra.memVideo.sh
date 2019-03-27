@@ -3,9 +3,10 @@ gcc -c zscale.c
 g++ -std=c++11 -L/opt/NuvuCameras/lib/ -L/usr/local/lib -L/opt/opencv/release *.o -o Pesto -lpthread -lnuvu -lopencv_core -lopencv_highgui -lopencv_imgproc
 
 rm *.o
+ 
 echo "Please enter the root pwd:"
+sudo rm /bin/Pesto
 sudo cp Pesto /bin/
-sudo cp Pesto /bin/pesto
 cd ../cmd/
 sudo make
 cd ../Pesto
