@@ -18,8 +18,8 @@ int FW::position(int pos)
 
     if (!FW::isHomed)
     {
-        extern Log log;
-        log.writetoVerbose("The filter wheel is not initialized. Initializing the filter first. Please wait...");
+        extern Log logg;
+        logg.writetoVerbose("The filter wheel is not initialized. Initializing the filter first. Please wait...");
         FW::home();
     }
 
@@ -45,8 +45,8 @@ int FW::increment(void)
     std::string cmd="1";
     std::string ANSW,WRITE="-1";
     std::string cmd2="+";
-    extern Log log;
-    log.writetoVerbose("1+ incrementation with the filter wheel");
+    extern Log logg;
+    logg.writetoVerbose("1+ incrementation with the filter wheel");
     write_socket_address(8300,FW::adress,&cmd);
     write_socket_address(8301,FW::adress,&cmd2);
     write2way_adress(8400,FW::adress,WRITE,&ANSW);
@@ -68,7 +68,7 @@ int FW::get_position(void)
 }
 
 int FW::home(void)
-{extern Log log;
+{extern Log logg;
     std::string cmd="1";
     std::string ANSW,WRITE="-1";
     std::string cmd2="H";
@@ -81,7 +81,7 @@ int FW::home(void)
     {
         FW::isHomed=1;
 
-        log.writetoVerbose("The filter wheel is homed");
+        logg.writetoVerbose("The filter wheel is homed");
     }
 
     return stoi(ANSW);
@@ -90,8 +90,8 @@ int FW::connection(std::string device)
 {   FW::isHomed=0;
     std::string cmd="4";
     std::string ANSW,WRITE="-1";
-    extern Log log;
-    log.writetoVerbose("A new connection with a devive (FW) has been established");
+    extern Log logg;
+    logg.writetoVerbose("A new connection with a devive (FW) has been established");
     write_socket_address(8300,FW::adress,&cmd);
     write_socket_address(8301,FW::adress,&device);
     write2way_adress(8400,FW::adress,WRITE,&ANSW);
@@ -104,8 +104,8 @@ int FW::closeConnection(void)
 {   FW::isHomed=0;
     std::string cmd="3";
     std::string ANSW,WRITE="-1";
-    extern Log log;
-    log.writetoVerbose("Disconnected from the filter server");
+    extern Log logg;
+    logg.writetoVerbose("Disconnected from the filter server");
     write_socket_address(8300,FW::adress,&cmd);
     write2way_adress(8400,FW::adress,WRITE,&ANSW);
     ANSW.erase(std::remove(ANSW.begin(), ANSW.end(), '\n'), ANSW.end());
