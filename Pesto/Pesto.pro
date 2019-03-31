@@ -11,7 +11,8 @@ SOURCES += \
     thread.cpp \
     fw.cpp \
     memVideo.cpp \
-    zscale.c
+    zscale.c \
+    listctrl.cpp
 
 #pour Lyra
 #win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../opt/NuvuCameras/lib/release/ -lnuvu
@@ -51,7 +52,8 @@ HEADERS += \
     thread.h \
     fw.h \
     memVideo.h \
-    zscale.h
+    zscale.h \
+    listctrl.h
 
 #INCLUDEPATH += $$PWD/../../../../../../usr/local/include
 #DEPENDPATH += $$PWD/../../../../../../usr/local/include

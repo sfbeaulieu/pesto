@@ -8,7 +8,7 @@
 #include "structure.h"
 #include <fstream>
 #include <string>
-
+#include "listctrl.h"
 extern int biasOK;
 extern int caseID,repID,buff1ID,buff2ID,buff3ID,buff4ID,pathID,buff2wayID1,buff2wayID2;//tout les ID des socket
 extern Log logg;
@@ -132,87 +132,88 @@ int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
     int i,unitNb;
     char serial[256];
     enum CommType commInterface;
-    std::cout<<"ok"<<std::endl;
     int unit, channel, width, height, present, error;
 
     // Get the number of available cameras
-    error = ncCamGetCameraAvailable(&cameraCount);
-    if (error!=0)
-    {
-        logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the number of cameras");
-        exit(1);
-    }
+    //error = ncCamGetCameraAvailable(&cameraCount);
+    //if (error!=0)
+    //{
+    //    logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the number of cameras");
+    //    exit(1);
+    //}
 
 
-        std::cout<<"Found camera: "<<cameraCount<<std::endl;
-    logg.writetoVerbose(std::to_string(cameraCount)+" camera found on the network.");
-    printf("\n");
-    std::cout<<":::::::::::::::::::::::::::::"<<std::endl;
+    //    std::cout<<"Found camera: "<<cameraCount<<std::endl;
+    //logg.writetoVerbose(std::to_string(cameraCount)+" camera found on the network.");
+    //printf("\n");
+    //std::cout<<":::::::::::::::::::::::::::::"<<std::endl;
 
-    for(i = 0; i < cameraCount; ++i)
-    {
+    //for(i = 0; i < cameraCount; ++i)
+    //{
         // Get the camera's serial number
-        error = ncCamGetCameraSerialNumber(i, serial);
-        if (error!=0)
-        {
+    //    error = ncCamGetCameraSerialNumber(i, serial);
+    //    if (error!=0)
+    //    {
 
-            logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the serial number of the camera"+std::to_string(i));
-            exit(1);
-        }
+      //      logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the serial number of the camera"+std::to_string(i));
+      //      exit(1);
+        //}
 
 
 
-        logg.writetoVerbose("("+std::to_string(i)+") Camera SN: "+serial+" is connected with the following parameters:");
-        error = ncCamGetCameraPort(i, &unit, &channel);
-        if (error!=0)
-        {
+        //logg.writetoVerbose("("+std::to_string(i)+") Camera SN: "+serial+" is connected with the following parameters:");
+        //error = ncCamGetCameraPort(i, &unit, &channel);
+        //if (error!=0)
+        //{
             //printf ("Error %d happened while retrieving the port of the camera %s\n", error, serial);
-            logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (1): "+serial);
+       //     logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (1): "+serial);
 
-            exit(1);
-        }
+         //   exit(1);
+        //}
 
-        logg.writetoVerbose("Unit: "+std::to_string(unit)+" Channel: "+std::to_string(channel));
+        //logg.writetoVerbose("Unit: "+std::to_string(unit)+" Channel: "+std::to_string(channel));
 
-        error = ncCamGetCameraCommInterface(i, &commInterface);
-        if (error!=0)
-        {
-            logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (2): "+serial);
-            exit(1);
-        }
+        //error = ncCamGetCameraCommInterface(i, &commInterface);
+        //if (error!=0)
+        //{
+       //     logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (2): "+serial);
+      //      exit(1);
+      //  }
 
-        printf("Communication interface: %x\n", commInterface);
-
-
-        error = ncCamGetCameraDetectorSize(i, &width, &height);
-        if (error!=0)
-        {
-            logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (3): "+serial);
-            exit(1);
-        }
-
-        printf("Detector size: %dx%d\n", width, height);
-
-        error = ncCamGetCameraPresent(unit, channel, &present);
-        if (error!=0)
-        {
-            logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (4): "+serial);
-            exit(1);
-        }
+      //  printf("Communication interface: %x\n", commInterface);
 
 
-        logg.writetoVerbose("Presence status: "+std::to_string(present));
-        std::cout<<":::::::::::::::::::::::::::::"<<std::endl;
-    }
-    std::cout<<"Which unit do you want to use? "<<std::endl;
-    std::cin>>unitNb;
-    error = ncCamOpen(PT_GIGE+unitNb+1,NC_AUTO_CHANNEL ,nbrBuffer,cam);
-            if (error!=0)
-            {   if (ncCamOpen(VIRTUAL+unitNb,NC_AUTO_CHANNEL ,nbrBuffer,cam)){
-                logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (5): "+serial);
-                exit(1);
-                }
-            }
+      //  error = ncCamGetCameraDetectorSize(i, &width, &height);
+      //  if (error!=0)
+      //  {
+      //      logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (3): "+serial);
+       //     exit(1);
+       // }
+
+//        printf("Detector size: %dx%d\n", width, height);
+
+     ///   error = ncCamGetCameraPresent(unit, channel, &present);
+      //  if (error!=0)
+      //  {
+      //      logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (4): "+serial);
+     //       exit(1);
+     //   }
+
+
+    //    logg.writetoVerbose("Presence status: "+std::to_string(present));
+    //    std::cout<<":::::::::::::::::::::::::::::"<<std::endl;
+   // }
+   // std::cout<<"Which unit do you want to use? "<<std::endl;
+   // std::cin>>unitNb;
+   // error = ncCamOpen(PT_GIGE+unitNb+1,NC_AUTO_CHANNEL ,nbrBuffer,cam);
+   //         if (error!=0)
+    //        {   if (ncCamOpen(VIRTUAL+unitNb,NC_AUTO_CHANNEL ,nbrBuffer,cam)){
+    //            logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (5): "+serial);
+    //            exit(1);
+    //            }
+    //   }
+    if (initCtrl(cam)!=0){exit(1);}
+
     error = ncCamSetReadoutMode(*cam, param->defROMODE);
     if (error!=0)
     {
@@ -722,3 +723,5 @@ std::string decToString(double dec){
     time = std::to_string(hour)+":"+std::to_string(min)+":"+std::to_string(sec);
     return time;
 }
+
+
