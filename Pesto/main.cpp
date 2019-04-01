@@ -398,7 +398,7 @@ while(1)
             }
             else
             {   ROIcount = 0;
-                double current_exposureT=;
+                double current_exposureT=0;
                 double current_readoutT=0;
                 if (ncCamGetExposureTime(myCam, 1, &current_exposureT)!=0 || ncCamGetReadoutTime(myCam, &current_readoutT)!=0)
                 {
@@ -406,11 +406,14 @@ while(1)
                     logg.writetoVerbose("unable to query the camera");
                 }
                 if (current_exposureT<current_readoutT)
-                {
-                    if (ncCamSetExposureTime(myCam,current_readoutT)!=0)
+                {cout<<"ok lalala"<<endl;
+                    error+=ncCamSetExposureTime(myCam, current_readoutT+50.0);
+                    error+=ncCamSetWaitingTime(myCam, 0);
+                    error+=ncCamGetReadoutTime(myCam, &detParam.readoutTime);
+                    error+=ncCamSetTimeout(myCam, (int)(0.1 * current_readoutT + current_readoutT + current_readoutT ) );
+                    if (error!=0)
                     {
-                        sprintf(cWRITE,"%d",-1);
-                        logg.writetoVerbose("unable to set the exposure time.");
+                        cout<<"error"<<endl;
                     }
                 }
                 sprintf(cWRITE,"%d",0);
