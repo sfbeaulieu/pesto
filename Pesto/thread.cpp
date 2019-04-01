@@ -48,6 +48,21 @@ void acquisition(int *mode, int *loop, int *inc){
 
     std::string racineFN = create_name();
     if (setupROI(&disp_roi)!=0){std::cout<<"Unable to probe the camera."<<std::endl; return;}
+    double time=0;
+    double current_exposureT=0;
+    double current_readoutT=0;
+    double frac=0;
+    double expT=0;
+    ncCamGetExposureTime(myCam, 1, &current_exposureT);
+    ncCamGetReadoutTime(myCam, &current_readoutT);
+    if (current_exposureT<current_readoutT)
+    {   expT=current_readoutT;
+        frac = 1000.0/(expT*10.0);
+    }
+    else
+    {   expT=current_exposureT;
+        frac = 1000.0/(expT*10.0);
+    }
 
     if (ncCamStart(myCam,0)!=0){logg.writetoVerbose("Unable to start the acquisition"); return;}
 
@@ -57,13 +72,8 @@ void acquisition(int *mode, int *loop, int *inc){
     {
         logg.createFolder(param.racinePath+detParam.path);
     }
-    double current_exposureT=0;
-    double current_readoutT=0;
-    ncCamGetExposureTime(myCam, 1, &current_exposureT);
-    ncCamGetReadoutTime(myCam, &current_readoutT);
-    std::cout<<"exp. time: "<<current_exposureT<<", "<<"readout time: "<<current_readoutT<<std::endl;
 
-
+    double i=expT*frac;
     switch (*mode){
 
     case 1:
@@ -75,8 +85,17 @@ void acquisition(int *mode, int *loop, int *inc){
             sprintf(objectnbr,"%.10d",*inc);
             sscanf(objectnbr,"%d",&threadInc);
             ncCamRead(myCam, &im);
-            copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
-            display(handle,imMat,im2,im3,&disp_roi);
+            if (frac<i)
+            {
+                i-=expT;
+            }
+            else
+            {
+                copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
+                display(handle,imMat,im2,im3,&disp_roi);
+                i=expT*frac;
+            }
+
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
             ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
         }
@@ -92,8 +111,16 @@ void acquisition(int *mode, int *loop, int *inc){
             *inc+=1;
             sprintf(objectnbr,"%.10d",*inc);
             ncCamRead(myCam, &im);
-            copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
-            display(handle,imMat,im2,im3,&disp_roi);
+            if (frac<i)
+            {
+                i-=expT;
+            }
+            else
+            {
+                copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
+                display(handle,imMat,im2,im3,&disp_roi);
+                i=expT*frac;
+            }
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
             ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
             if (*loop==0){break;}
