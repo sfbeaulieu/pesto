@@ -32,9 +32,9 @@ extern int threadInc;
 //void *acquisition(void *arg){
 void acquisition(int *mode, int *loop, int *inc){
     //set display
+
     struct display_roi disp_roi;
     const uint16_t size=1024;
-
     std::string handle="Display";
     unsigned short int *im = new unsigned short int [size*size];
     unsigned short int *im2 = new unsigned short int [size*size];
@@ -47,20 +47,18 @@ void acquisition(int *mode, int *loop, int *inc){
     char objectnbr[15];
 
     std::string racineFN = create_name();
-    int error;
-    error = ncCamStart(myCam,0);
-    if (error){
-        logg.writetoVerbose("Unable to start the acquisition");
-        return;
-    }
+    if (setupROI(&disp_roi)!=0){std::cout<<"Unable to probe the camera."<<std::endl; return;}
+
+    if (ncCamStart(myCam,0)!=0){logg.writetoVerbose("Unable to start the acquisition"); return;}
+
 
     std::cout<<"Acquisition started..."<<std::endl;
-    if (!logg.isFolder(param.racinePath+detParam.path)){
+    if (!logg.isFolder(param.racinePath+detParam.path))
+    {
         logg.createFolder(param.racinePath+detParam.path);
-
     }
 
-    setupROI(&disp_roi);
+
 
     switch (*mode){
 
@@ -72,16 +70,10 @@ void acquisition(int *mode, int *loop, int *inc){
             *inc+=1;
             sprintf(objectnbr,"%.10d",*inc);
             sscanf(objectnbr,"%d",&threadInc);
-            //ncCamRead(myCam, &myNcImage);
             ncCamRead(myCam, &im);
-
             copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
             display(handle,imMat,im2,im3,&disp_roi);
-
-
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
-            //std::cout<<nameFile<<std::endl;
-            //ncCamSaveImage(myCam, myNcImage,nameFile.c_str(), FITS," " , 1);
             ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
         }
         break;
@@ -95,12 +87,10 @@ void acquisition(int *mode, int *loop, int *inc){
         {
             *inc+=1;
             sprintf(objectnbr,"%.10d",*inc);
-           // ncCamRead(myCam, &myNcImage);
             ncCamRead(myCam, &im);
             copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
             display(handle,imMat,im2,im3,&disp_roi);
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
-            //ncCamSaveImage(myCam, myNcImage,nameFile.c_str(), FITS," " , 1);
             ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
             if (*loop==0){break;}
         }

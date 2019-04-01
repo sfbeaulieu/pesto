@@ -79,7 +79,7 @@ void display(std::string handle,cv::Mat matIm,unsigned short *im_src,float *&im_
 //        putText(matIm, text,cv::Point(15,15),cv::FONT_HERSHEY_COMPLEX_SMALL, 4.0, cv::Scalar(200,200,250), 1);
 //    }
     cdl_zscale(im_src,disp_roi->buff_width,disp_roi->buff_height,16,&z1,&z2,0.25,1000,1000);
-    std::cout<<"z: "<<z1<<" "<<z2<<std::endl;
+    //std::cout<<"z: "<<z1<<" "<<z2<<std::endl;
 
 
 
@@ -104,18 +104,20 @@ void display(std::string handle,cv::Mat matIm,unsigned short *im_src,float *&im_
     cv::waitKey(1);
 }
 
-void setupROI(struct display_roi *disp_roi)
+int setupROI(struct display_roi *disp_roi)
 {
     //get the size of the incomming buffer
     memset(disp_roi->offsetx,0,8);
     memset(disp_roi->height,0,8);
     memset(disp_roi->offsety,0,8);
     memset(disp_roi->width,0,8);
+
     disp_roi->count = 0;
     disp_roi->ro_mode = 0;
     if (ncCamGetSize(myCam,&disp_roi->buff_width,&disp_roi->buff_height)!=0)
     {
         std::cout<<"unable to retrieve the widht and height of the image buffer"<<std::endl;
+        return -1;
     }
     else
     {
@@ -126,7 +128,7 @@ void setupROI(struct display_roi *disp_roi)
     enum Ampli	ncAmpliNo;
     char Amp[32];
 
-    if (ncCamGetCurrentReadoutMode(myCam,&disp_roi->ro_mode,&ncAmpliNo,Amp,&VerHz,&HorHz)!=0){ std::cout<<"Unable to read the readout mode."<<std::endl;}
+    if (ncCamGetCurrentReadoutMode(myCam,&disp_roi->ro_mode,&ncAmpliNo,Amp,&VerHz,&HorHz)!=0){ std::cout<<"Unable to read the readout mode."<<std::endl; return -1;}
     else{std::cout<<"readout mode: "<<disp_roi->ro_mode<<std::endl;}
     if (disp_roi->ro_mode>=4 && disp_roi->ro_mode<=11)//conventioenl
     {
@@ -161,6 +163,7 @@ void setupROI(struct display_roi *disp_roi)
         std::cout<<"offset (x,y) :"<<disp_roi->offsetx[i]<<" , "<< disp_roi->offsety[i]<<std::endl;
         std::cout<<"size (width x heigth)"<<disp_roi->width[i]<<" x "<<disp_roi->height[i]<<std::endl;
     }
+    return 0;
 }
 void copy_array(unsigned short int *im,unsigned short int *&im2,uint32_t length)
 {
