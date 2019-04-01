@@ -169,7 +169,7 @@ void copy_array(unsigned short int *im,unsigned short int *&im2,uint32_t length)
 {
     for (uint32_t i=0;i<length;i++)
     {
-        im2[i]=im[i];
+        im2[length-1-i]=im[i];//pour inverser l'image
     }
 }
 void closeWindow(std::string handle)
