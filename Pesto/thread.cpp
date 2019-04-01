@@ -57,7 +57,11 @@ void acquisition(int *mode, int *loop, int *inc){
     {
         logg.createFolder(param.racinePath+detParam.path);
     }
-
+    double current_exposureT=0;
+    double current_readoutT=0;
+    ncCamGetExposureTime(myCam, 1, &current_exposureT);
+    ncCamGetReadoutTime(myCam, &current_readoutT);
+    std::cout<<"exp. time: "<<current_exposureT<<", "<<"readout time: "<<current_readoutT<<std::endl;
 
 
     switch (*mode){

@@ -398,6 +398,21 @@ while(1)
             }
             else
             {   ROIcount = 0;
+                double current_exposureT=;
+                double current_readoutT=0;
+                if (ncCamGetExposureTime(myCam, 1, &current_exposureT)!=0 || ncCamGetReadoutTime(myCam, &current_readoutT)!=0)
+                {
+                    sprintf(cWRITE,"%d",-1);
+                    logg.writetoVerbose("unable to query the camera");
+                }
+                if (current_exposureT<current_readoutT)
+                {
+                    if (ncCamSetExposureTime(myCam,current_readoutT)!=0)
+                    {
+                        sprintf(cWRITE,"%d",-1);
+                        logg.writetoVerbose("unable to set the exposure time.");
+                    }
+                }
                 sprintf(cWRITE,"%d",0);
                 WRITE = cWRITE;
                 read2way(repID,&WRITE,WRITE);
