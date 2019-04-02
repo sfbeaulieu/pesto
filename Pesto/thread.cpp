@@ -73,7 +73,7 @@ void acquisition(int *mode, int *loop, int *inc){
         logg.createFolder(param.racinePath+detParam.path);
     }
 
-    double i=expT*frac;
+    double i_t=expT*frac;
     switch (*mode){
 
     case 1:
@@ -85,15 +85,15 @@ void acquisition(int *mode, int *loop, int *inc){
             sprintf(objectnbr,"%.10d",*inc);
             sscanf(objectnbr,"%d",&threadInc);
             ncCamRead(myCam, &im);
-            if (frac<i)
+            if (frac<i_t)
             {
-                i-=expT;
+                i_t-=expT;
             }
             else
             {
                 copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
                 display(handle,imMat,im2,im3,&disp_roi);
-                i=expT*frac;
+                i_t=expT*frac;
             }
 
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
@@ -111,15 +111,15 @@ void acquisition(int *mode, int *loop, int *inc){
             *inc+=1;
             sprintf(objectnbr,"%.10d",*inc);
             ncCamRead(myCam, &im);
-            if (frac<i)
+            if (frac<i_t)
             {
-                i-=expT;
+                i_t-=expT;
             }
             else
             {
                 copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
                 display(handle,imMat,im2,im3,&disp_roi);
-                i=expT*frac;
+                i_t=expT*frac;
             }
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
             ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
