@@ -25,6 +25,8 @@ char cWRITE[100];
 int loop,biasOK,mode,inc,error;
 int ROIcount;
 int isInAcq;//1 -> in ACQ, 0->not in acquisition
+int display_on;//0 do not start the memory video display, 1-> start mvd
+int saveIm;//0-> do not save images, 1-> save images
 int tcs_loop,meteo_loop;
 int threadInc;
 int developpement;
