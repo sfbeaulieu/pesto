@@ -15,4 +15,6 @@ int get_inc(struct initParam *param);
 double getPosRot(void);
 double getPosBras(void);
 int preACQ(struct camParam *cam);
+void raToString(std::string *ra_string,double ra);
+std::string decToString(double dec);
 #endif // UTILS_H
