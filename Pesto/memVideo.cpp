@@ -185,7 +185,7 @@ int setupROI(struct display_roi *disp_roi)
     return 0;
 }
 
-void copy_array(unsigned short int *im,unsigned short int *&im2,size_t length)
+void copy_array(unsigned short int *im,unsigned short int *&im2,uint32_t length,int row)
 {   //Description: This function copy and array of type unsigned short int.
     //This is used to copy the image buffer into another array for processing.
     for (uint32_t i=0;i<length;i++)
