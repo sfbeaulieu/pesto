@@ -127,138 +127,55 @@ void saveImageCallback(NcCam myCam, NcImageSaved* imageSaved, void* dummy)
 }
 
 int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
-{
-    int cameraCount;
-    int i,unitNb;
-    char serial[256];
-    enum CommType commInterface;
-    int unit, channel, width, height, present, error;
-
-    // Get the number of available cameras
-    //error = ncCamGetCameraAvailable(&cameraCount);
-    //if (error!=0)
-    //{
-    //    logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the number of cameras");
-    //    exit(1);
-    //}
+{//Description: This function initialize the camera.
 
 
-    //    std::cout<<"Found camera: "<<cameraCount<<std::endl;
-    //logg.writetoVerbose(std::to_string(cameraCount)+" camera found on the network.");
-    //printf("\n");
-    //std::cout<<":::::::::::::::::::::::::::::"<<std::endl;
-
-    //for(i = 0; i < cameraCount; ++i)
-    //{
-        // Get the camera's serial number
-    //    error = ncCamGetCameraSerialNumber(i, serial);
-    //    if (error!=0)
-    //    {
-
-      //      logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the serial number of the camera"+std::to_string(i));
-      //      exit(1);
-        //}
-
-
-
-        //logg.writetoVerbose("("+std::to_string(i)+") Camera SN: "+serial+" is connected with the following parameters:");
-        //error = ncCamGetCameraPort(i, &unit, &channel);
-        //if (error!=0)
-        //{
-            //printf ("Error %d happened while retrieving the port of the camera %s\n", error, serial);
-       //     logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (1): "+serial);
-
-         //   exit(1);
-        //}
-
-        //logg.writetoVerbose("Unit: "+std::to_string(unit)+" Channel: "+std::to_string(channel));
-
-        //error = ncCamGetCameraCommInterface(i, &commInterface);
-        //if (error!=0)
-        //{
-       //     logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (2): "+serial);
-      //      exit(1);
-      //  }
-
-      //  printf("Communication interface: %x\n", commInterface);
-
-
-      //  error = ncCamGetCameraDetectorSize(i, &width, &height);
-      //  if (error!=0)
-      //  {
-      //      logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (3): "+serial);
-       //     exit(1);
-       // }
-
-//        printf("Detector size: %dx%d\n", width, height);
-
-     ///   error = ncCamGetCameraPresent(unit, channel, &present);
-      //  if (error!=0)
-      //  {
-      //      logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (4): "+serial);
-     //       exit(1);
-     //   }
-
-
-    //    logg.writetoVerbose("Presence status: "+std::to_string(present));
-    //    std::cout<<":::::::::::::::::::::::::::::"<<std::endl;
-   // }
-   // std::cout<<"Which unit do you want to use? "<<std::endl;
-   // std::cin>>unitNb;
-   // error = ncCamOpen(PT_GIGE+unitNb+1,NC_AUTO_CHANNEL ,nbrBuffer,cam);
-   //         if (error!=0)
-    //        {   if (ncCamOpen(VIRTUAL+unitNb,NC_AUTO_CHANNEL ,nbrBuffer,cam)){
-    //            logg.writetoVerbose("Nuvu: Error"+std::to_string(error)+"happened while retrieving the port of the camera (5): "+serial);
-    //            exit(1);
-    //            }
-    //   }
-    if (initCtrl(cam)!=0){exit(1);}
-
-    error = ncCamSetReadoutMode(*cam, param->defROMODE);
-    if (error!=0)
+    if (initCtrl(cam)!=0)
+    {
+        logg.writetoVerbose("initCtrl failed.");
+        exit(1);
+    }
+    if (ncCamSetReadoutMode(*cam, param->defROMODE)!=0)
     {
         logg.writetoVerbose("Unable to set the readout mode. Shutting down the PESTO... ");
         exit(1);
     }
     else
+    {
         logg.writetoVerbose("ReadOutMode set to "+std::to_string(param->defROMODE)+" succesfully");
-
-
-
-
-
-    error = ncCamGetReadoutTime(*cam, &detParam->readoutTime);
-
-    if (error!=0)
+    }
+    if (ncCamGetReadoutTime(*cam, &detParam->readoutTime)!=0)
     {
         logg.writetoVerbose("Unable to get the readout time. Shutting down the PESTO... ");
         exit(1);
     }
-    error = ncCamSetExposureTime(*cam, detParam->readoutTime);
-    if (error!=0)
+    if (ncCamSetExposureTime(*cam, detParam->readoutTime)!=0)
     {
             logg.writetoVerbose("Unable to set the exposure time. Shutting down the PESTO... ");
             exit(1);
     }
     // Recover the exposure time for use later
-    error = ncCamGetExposureTime(*cam, 1, &detParam->exposureTime);
-    if (error)
+    if (ncCamGetExposureTime(*cam, 1, &detParam->exposureTime))
     {
         logg.writetoVerbose("Unable to get the exposure time. Shutting down the PESTO... ");
         exit(1);
     }
-
-
-    // We set a reasonable waiting time
-    error = ncCamSetWaitingTime(*cam, 0);
-    if (error!=0)
+    //This function sets the waiting time (in ms) between two image acquisitions.
+    //The waiting time controls the time spent clearing the detector prior to each
+    //acquisition. If this parameter is set to 0, the detector is not cleared prior
+    //to each acquisition. In this case, if the exposure time is shorter than the
+    //readout time (the time during which the frame is being read from the detector
+    //and sent to the host computer), then the effective exposure time will correspond
+    //to the readout time. If the waiting time value is being set to any value other
+    //then 0, then the exposure time will be the one previously specified independently
+    //of the readout time.
+    if (ncCamSetWaitingTime(*cam, 0)!=0)
     {
         logg.writetoVerbose("Unable to set the waiting time. Shutting down the PESTO... ");
-    exit(1);
+        exit(1);
     }
     // Recover the waiting time for use later
-    error = ncCamGetWaitingTime(*cam, 1, &detParam->waitingTime);
-    if (error!=0)
+    if (ncCamGetWaitingTime(*cam, 1, &detParam->waitingTime)!=0)
     {
         logg.writetoVerbose("Unable to get the waiting time of the detector. Shutting down the PESTO... ");
         exit(1);
@@ -266,26 +183,23 @@ int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
     // Set a reasonable timeout on reading an image
     // The delay between images is the sum of the waiting time, the exposure and the readout time
     // (if the waiting time is non-zero).
-    error = ncCamSetTimeout(*cam, detParam->waitingTime + detParam->exposureTime + detParam->readoutTime + 1000.0 );
-    if (error!=0)
+    if (ncCamSetTimeout(*cam, detParam->waitingTime + detParam->exposureTime + detParam->readoutTime + 1000.0 )!=0)
     {
         logg.writetoVerbose("Unable to set the timeout of the detector. Shutting down the PESTO... ");
-    exit(1);
+        exit(1);
     }
     //CLOSE the shutter for the acquisition
-    error = ncCamSetShutterMode( *cam, CLOSE );
-    if (error!=0)
+    if (ncCamSetShutterMode( *cam, CLOSE )!=0)
     {
         logg.writetoVerbose("Unable to close the shutter of the camera. Shutting down the PESTO... ");
         exit(1);
     }
-    error = ncCamSetTargetDetectorTemp(*cam,param->defCCDTEMP);
-    if (error!=0)
+    if (ncCamSetTargetDetectorTemp(*cam,param->defCCDTEMP)!=0)
     {
+        logg.writetoVerbose("Unable to fetch the temperature of the camera.");
         exit(1);
     }
-    error = ncCamSaveImageSetHeaderCallback(*cam, saveImageCallback, cam);
-    if (error!=0)
+    if (ncCamSaveImageSetHeaderCallback(*cam, saveImageCallback, cam)!=0)
     {
         logg.writetoVerbose("Unable to set the save image callback . Shutting down");
         exit(1);
@@ -294,21 +208,16 @@ int openCam(NcCam *cam,struct initParam *param,struct camParam *detParam)
     return 0;
 }
 
-
-
-
-
-
-
-int initVariable(struct initParam *param,struct camParam *detParam){
-    if (logg.isFile("/home/initPesto/init.txt")){
-        //cherche les variables
+int initVariable(struct initParam *param,struct camParam *detParam)
+{
+    if (logg.isFile("/home/initPesto/init.txt"))
+    {
+        //cherche les variables dans init.txt
         std::ifstream file("/home/initPesto/init.txt");
         std::string str;
         while (std::getline(file,str)){
             if (str.find("EMGAIN")==0){param->maxGain = std::stoi(str.substr(str.find(":")+1));}
             if (str.find("MINGAIN")==0){param->minGain = std::stoi(str.substr(str.find(":")+1));}
-
             if (str.find("PATHRACINE")==0){param->racinePath = str.substr(str.find(":")+1) ;}
             if (str.find("PATHLOG")==0){param->logPath = str.substr(str.find(":")+1);}
             if (str.find("NBBIASCONV")==0){param->nbBiasConv = std::stoi(str.substr(str.find(":")+1));}
@@ -491,8 +400,6 @@ if (tm.tm_hour>=12){
 
 return name;}
 
-
-
 int selectTimeStamp(NcCam *cam,int mode){
     int error;
     switch(mode)
@@ -545,7 +452,7 @@ int selectTimeStamp(NcCam *cam,int mode){
     }//switch
 
 
- return 0;
+    return 0;
 }
 int applyBias(NcCam *cam,struct initParam *param,struct camParam *detParam)
 { //This function 1st check if the shutter is open. If it is it will close it.
@@ -553,19 +460,29 @@ int applyBias(NcCam *cam,struct initParam *param,struct camParam *detParam)
     //The the read out mode is probed. If the RO mode is set to EM and the gain <1000
     //The LM mode is set for the bias processing method. If gain>=1000 the Pc procissing
     //mode will be set. If the conventional mode is set the LM method is used.
+    //Return 0 if successfull, -1 if unsuccessfull or -2 if an exposure is already ongoing
 
     int ro_mode,VerHz,HorHz;
     enum Ampli	ncAmpliNo;
     enum ShutterMode shutterMode;
     int toReOpen=0;
     char Ampli[32];
+
+    if (isInAcq==1)
+    {
+        logg.writetoVerbose("Unable to start the bias acquisition because an exposition is in progress. Please stop the acquisition first");
+        return -2;
+    }
+
     if (ncCamGetShutterMode(*cam,1,&shutterMode)!=0)
-    {   logg.writetoVerbose("Unable to get the shutter mode");
+    {
+        logg.writetoVerbose("Unable to get the shutter mode");
         return -1;
     }
 
     else if (shutterMode!=2)
-    {   toReOpen=1;//reopen the the shutter after the acquisition of the bias
+    {
+        toReOpen=1;//reopen the the shutter after the acquisition of the bias
         if (ncCamSetShutterMode(*cam,CLOSE)!=0)
         {
             logg.writetoVerbose("Unable to set the shutter mode");
@@ -573,60 +490,56 @@ int applyBias(NcCam *cam,struct initParam *param,struct camParam *detParam)
         }
 
     }
-    if (isInAcq==1)
-    {
-        logg.writetoVerbose("Unable to start the bias acquisition because an exposition is in progress. Please stop the acquisition first");
-        return -2;
-    }
-    else
-    {
-       if ( ncCamGetCurrentReadoutMode(*cam,&ro_mode,&ncAmpliNo,Ampli,&VerHz,&HorHz)!=0)
-       {    logg.writetoVerbose("Unable to get the readout mode");
+
+   if ( ncCamGetCurrentReadoutMode(*cam,&ro_mode,&ncAmpliNo,Ampli,&VerHz,&HorHz)!=0)
+   {
+       logg.writetoVerbose("Unable to get the readout mode");
+       return -1;
+   }
+   if (ro_mode<4 || ro_mode>=12)
+   {//Em mode::::::::::::
+
+       if (ncCamCreateBias(*cam,param->nbBiasEm,BIAS_DEFAULT)!=0)
+       {    logg.writetoVerbose("Unable to start the bias acquisition");
            return -1;
        }
-       if (ro_mode<4 || ro_mode>=12)
+       if (detParam->gain>=1000)
        {
-           //Em mode
-           if (ncCamCreateBias(*cam,param->nbBiasEm,BIAS_DEFAULT)!=0)
-           {    logg.writetoVerbose("Unable to start the bias acquisition");
+           if (ncCamSetProcType(*cam,PC,0)!=0)
+           {
+               logg.writeto("Unable to set the processing type of the bias");
                return -1;
-           }
-           if (detParam->gain>=1000)
-           {
-               if (ncCamSetProcType(*cam,PC,0)!=0)
-               {
-                   logg.writeto("Unable to set the processing type of the bias");
-                   return -1;
-               }
-           }
-           else if (detParam->gain<1000)
-           {
-               if (ncCamSetProcType(*cam,LM,0)!=0)
-               {
-                   logg.writeto("Unable to set the processing type of the bias");
-                   return -1;
-               }
            }
        }
-       else
+       else if (detParam->gain<1000)
        {
-           if (ncCamCreateBias(*cam,param->nbBiasConv,BIAS_DEFAULT)!=0)
-           {    logg.writetoVerbose("Unable to start the bias acquisition");
-               return -1;
-           }
            if (ncCamSetProcType(*cam,LM,0)!=0)
            {
                logg.writeto("Unable to set the processing type of the bias");
                return -1;
            }
        }
+   }
+   else
+   {//conventionel::::::::::::::::::::
+       if (ncCamCreateBias(*cam,param->nbBiasConv,BIAS_DEFAULT)!=0)
+       {
+           logg.writetoVerbose("Unable to start the bias acquisition");
+           return -1;
+       }
+       if (ncCamSetProcType(*cam,LM,0)!=0)
+       {
+           logg.writeto("Unable to set the processing type of the bias");
+           return -1;
+       }
+   }
 
-    }
+
     if (toReOpen==1)
     {
         if (ncCamSetShutterMode(*cam,OPEN)!=0)
         {
-            logg.writetoVerbose("Unable to set the shutter mode");
+            logg.writetoVerbose("Unable to re-open the shutter. ");
             return -1;
         }
     }
@@ -635,7 +548,8 @@ int applyBias(NcCam *cam,struct initParam *param,struct camParam *detParam)
 }
 
 int get_inc(struct initParam *param)
-{   char buf[256];
+{
+    char buf[256];
     std::string command = "python "+param->pathPython+"last_file.py ";
     std::string path=param->racinePath+create_name();
     path=path.substr(0,path.size()-1);//remove last caracter "_"
@@ -714,8 +628,8 @@ int preACQ(struct camParam *cam)
     return 0;
 }
 
-std::string decToString(double dec){
-
+std::string decToString(double dec)
+{//Description: Convert the declinason from degree to H:M:S.
     int hour,min;
     std::string time;
     hour = (int)dec;
@@ -725,4 +639,13 @@ std::string decToString(double dec){
     return time;
 }
 
-
+void raToString(std::string *ra_string,double ra)
+{//Description: Convert the right ascension from degree to H:M:S.
+    int hour,min;
+    double sec;
+    hour = static_cast<int>(ra/15.0);
+    min = static_cast<int>(((ra/15.0)-hour)*60.0);
+    sec = ((((ra/15.0)-hour)*60.0)-min)*60.0;
+    *ra_string = std::to_string(hour)+":"+std::to_string(min)+":"+std::to_string(sec);
+    return ;
+}
