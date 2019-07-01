@@ -85,6 +85,7 @@ struct display_roi{
     int height[8];
     uint32_t num;
 
+
 };
 
 #endif // STRUCTURE_H

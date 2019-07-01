@@ -9,7 +9,7 @@ void normalisation_ROI (unsigned short int *&A,float *&B ,int start_dst,int star
 void closeWindow(std::string handle);
 void stats(unsigned short int A[],uint32_t length,double *mean,double *std);
 void stats(float A[],uint32_t length,double *mean,double *std);
-void copy_array(unsigned short int *im,unsigned short int *&im2,uint32_t length);
+void copy_array(unsigned short int *im,unsigned short int *&im2,uint32_t length,int row);
 int setupROI(struct display_roi *disp_roi);
 #endif // MEMVIDEO_H
 

@@ -16,7 +16,7 @@ cv::Mat memVidSetup(float *&im, const uint16_t size, std::string handle)
 {
     cv::startWindowThread();//to fix the bug where the window does not resize if it's killed inbetween to image sequence
     cv::Mat matIm = cv::Mat(size, size, CV_32F  ,im);
-    cv::namedWindow(handle.c_str(),cv::WINDOW_FREERATIO);
+    cv::namedWindow(handle.c_str(),cv::WINDOW_FREERATIO);//WINDOW_FREERATIO previous config
     return matIm;
 }
 void stats(unsigned short int A[], uint32_t length, double *mean, double *std){
@@ -165,11 +165,13 @@ int setupROI(struct display_roi *disp_roi)
     }
     return 0;
 }
-void copy_array(unsigned short int *im,unsigned short int *&im2,uint32_t length)
+void copy_array(unsigned short int *im,unsigned short int *&im2,uint32_t length,int row)
 {
     for (uint32_t i=0;i<length;i++)
     {
-        im2[i]=im[i];
+        //im2[length-1-i]=im[i];//pour inverser l'image NS-EO
+        //i%r+l-(r)*(i/r+1)
+        im2[i%row+length-row*(i/row+1)]=im[i];//inversion NS
     }
 }
 void closeWindow(std::string handle)
