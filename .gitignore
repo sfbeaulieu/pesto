@@ -13,7 +13,7 @@ Pesto/test
 
 *.stash
 
-
+i*.pyc
 
 
 build/
