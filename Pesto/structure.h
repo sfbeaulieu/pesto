@@ -1,6 +1,7 @@
 #ifndef STRUCTURE_H
 #define STRUCTURE_H
 #include <stdint.h>
+#include <iostream>
 struct camera{
     int xPxSize;
     int yPxSize;
