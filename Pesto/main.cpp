@@ -841,6 +841,74 @@ while(1)
         overideFW=0;
         break;
     }
+    case 27://stop or start the video display
+    {
+        if(read_socket(&buff1,buff1ID)!=0)
+        {   logg.writetoVerbose("unable to read the socket argument");
+            sprintf(cWRITE,"%d",-1);
+            WRITE = cWRITE;
+            read2way(repID,&WRITE,WRITE);
+            break;
+        }
+
+        else
+        {   int arg = stoi(buff1);
+            if (arg<0 || arg>1)
+            {
+                sprintf(cWRITE,"%d",-1);
+            }
+            else
+            {   display_on=arg;
+                if (arg==1)
+                {
+                    logg.writetoVerbose("Video feed will be displayed");
+                }
+                else
+                {
+                    logg.writetoVerbose("Video feed will stop");
+                }
+                sprintf(cWRITE,"%d",0);
+            }
+
+            WRITE = cWRITE;
+            read2way(repID,&WRITE,WRITE);
+        }
+        break;
+    }
+    case 28://save or do not save the images
+    {
+        if(read_socket(&buff1,buff1ID)!=0)
+        {   logg.writetoVerbose("unable to read the socket argument");
+            sprintf(cWRITE,"%d",-1);
+            WRITE = cWRITE;
+            read2way(repID,&WRITE,WRITE);
+            break;
+        }
+
+        else
+        {   int arg = stoi(buff1);
+            if (arg<0 || arg>1)
+            {
+                sprintf(cWRITE,"%d",-1);
+            }
+            else
+            {   saveIm=arg;
+                if (arg==1)
+                {
+                    logg.writetoVerbose("Image will be saved");
+                }
+                else
+                {
+                    logg.writetoVerbose("Image will not be saved");
+                }
+                sprintf(cWRITE,"%d",0);
+            }
+
+            WRITE = cWRITE;
+            read2way(repID,&WRITE,WRITE);
+        }
+        break;
+    }
     }//switch statement
 }
 

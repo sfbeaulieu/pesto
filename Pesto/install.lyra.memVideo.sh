@@ -6,7 +6,7 @@ rm *.o
  
 echo "Please enter the root pwd:"
 sudo rm /bin/Pesto
-sudo cp Pesto /bin/
+sudo mv Pesto /bin/
 cd ../cmd/
 sudo make
 cd ../Pesto

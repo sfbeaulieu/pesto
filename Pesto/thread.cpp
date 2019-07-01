@@ -19,7 +19,7 @@ extern NcImage	*myNcImage;
 extern struct camParam detParam;
 extern struct initParam param;
 extern Log logg;
-extern int isInAcq,buffAcQ_port,buffAcQ,buffStop_port,buffStop,buffInc,buffInc_port;
+extern int isInAcq,buffAcQ_port,buffAcQ,buffStop_port,buffStop,buffInc,buffInc_port,display_on,saveIm;
 extern int tcs_loop,meteo_loop;
 extern std::string adress_tcs;
 extern std::string nameFile;
@@ -72,8 +72,8 @@ void acquisition(int *mode, int *loop, int *inc){
     {
         logg.createFolder(param.racinePath+detParam.path);
     }
+    double i_t=expT*frac;
 
-    double i=expT*frac;
     switch (*mode){
 
     case 1:
@@ -85,19 +85,24 @@ void acquisition(int *mode, int *loop, int *inc){
             sprintf(objectnbr,"%.10d",*inc);
             sscanf(objectnbr,"%d",&threadInc);
             ncCamRead(myCam, &im);
-            if (frac<i)
+            if (display_on)
             {
-                i-=expT;
+                if (frac<i_t)
+                {
+                    i_t-=expT;
+                }
+                else
+                {
+                    copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width,disp_roi.buff_width);
+                    display(handle,imMat,im2,im3,&disp_roi);
+                    i_t=expT*frac;
+                }
             }
-            else
-            {
-                copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
-                display(handle,imMat,im2,im3,&disp_roi);
-                i=expT*frac;
-            }
-
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
-            ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
+            if (saveIm)
+            {
+                ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
+            }
         }
         break;
     }
@@ -111,18 +116,24 @@ void acquisition(int *mode, int *loop, int *inc){
             *inc+=1;
             sprintf(objectnbr,"%.10d",*inc);
             ncCamRead(myCam, &im);
-            if (frac<i)
+            if (display_on)
             {
-                i-=expT;
-            }
-            else
-            {
-                copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width);
-                display(handle,imMat,im2,im3,&disp_roi);
-                i=expT*frac;
+                if (frac<i_t)
+                {
+                    i_t-=expT;
+                }
+                else
+                {
+                    copy_array(im,im2,disp_roi.buff_height*disp_roi.buff_width,disp_roi.buff_width);
+                    display(handle,imMat,im2,im3,&disp_roi);
+                    i_t=expT*frac;
+                }
             }
             nameFile = param.racinePath+detParam.path+racineFN+std::string(objectnbr);
-            ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
+            if (saveIm)
+            {
+                ncCamSaveImage(myCam, im,nameFile.c_str(), FITS," " , 1);
+            }
             if (*loop==0){break;}
         }
         break;

@@ -24,7 +24,7 @@ extern struct camParam detParam;
 extern int nbrBuffer;
 
 extern std::string adress_tcs;
-extern int mode,inc,error,ROIcount,tcs_loop,meteo_loop,biasOK,isInAcq,nbrBuffer;
+extern int mode,inc,error,ROIcount,tcs_loop,meteo_loop,biasOK,isInAcq,saveIm,nbrBuffer,display_on;
 extern int developpement;
 extern std::string nameFile;
 extern int overideFW;
@@ -373,7 +373,8 @@ int initVariable(struct initParam *param,struct camParam *detParam){
 
     //detParam.nbrExp=15;
     isInAcq = 0;
-
+    display_on=1;
+    saveIm=1;
     return 0;
 }
 
