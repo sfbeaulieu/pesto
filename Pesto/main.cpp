@@ -147,7 +147,7 @@ while(1)
     {
         loop=0;
         while(isInAcq){
-            cout<<"waiting for the end of the acquisition..."<<endl;
+            logg.writetoVerbose("waiting for the end of the acquisition...");
             delay(1000);
         }
         sprintf(cWRITE,"%d",0);
@@ -162,7 +162,7 @@ while(1)
         loop=0;//request an exit of the acquisition thread loop
         while(isInAcq)
         {
-            cout<<"waiting for the end of the acquisition..."<<endl;
+            logg.writetoVerbose("waiting for the end of the acquisition...");
             delay(1000);
         }
         if (ncCamClose(myCam) != 0)
@@ -170,7 +170,7 @@ while(1)
         //destroy all the thread
 
             return -1;}
-        cout<<"Bye bye!"<<endl;
+        logg.writetoVerbose("Bye bye!");
         //destroy all the thread
         return 0;
 
@@ -406,17 +406,18 @@ while(1)
                     logg.writetoVerbose("unable to query the camera");
                 }
                 if (current_exposureT<current_readoutT)
-                {cout<<"ok lalala"<<endl;
-                    error+=ncCamSetExposureTime(myCam, current_readoutT+50.0);
-                    error+=ncCamSetWaitingTime(myCam, 0);
-                    error+=ncCamGetReadoutTime(myCam, &detParam.readoutTime);
-                    error+=ncCamSetTimeout(myCam, (int)(0.1 * current_readoutT + current_readoutT + current_readoutT ) );
-                    if (error!=0)
-                    {
-                        cout<<"error"<<endl;
-                    }
+                {
+                    sprintf(cWRITE,"%d",0);
+                    if (ncCamSetExposureTime(myCam, current_readoutT+50.0)!=0){logg.writetoVerbose("unable to set the exposure time.");sprintf(cWRITE,"%d",-1);}
+                    if (ncCamSetWaitingTime(myCam, 0)!=0){logg.writetoVerbose("unable to set the waiting time.");sprintf(cWRITE,"%d",-1);}
+                    if (ncCamGetReadoutTime(myCam, &detParam.readoutTime)!=0){logg.writetoVerbose("unable to get the readout mode.");sprintf(cWRITE,"%d",-1);}
+                    if (ncCamSetTimeout(myCam, (int)(0.1 * current_readoutT + current_readoutT + current_readoutT ) )!=0){logg.writetoVerbose("unable to set the timeout.");sprintf(cWRITE,"%d",-1);}
                 }
-                sprintf(cWRITE,"%d",0);
+                else
+                {
+                    sprintf(cWRITE,"%d",-1);
+                }
+
                 WRITE = cWRITE;
                 read2way(repID,&WRITE,WRITE);
             }
@@ -680,6 +681,7 @@ while(1)
         int offsetY;
         int roiHeight;
         biasOK=0;
+        logg.writeto("Starting a new ROI.");
         if(read_socket(&buff1,buff1ID)!=0)
         {   logg.writetoVerbose("unable to read the argument buffer (ROI)");
             sprintf(cWRITE,"%d",-1);
@@ -697,9 +699,10 @@ while(1)
         offsetY = stoi(buff1);
         roiHeight = stoi(buff2);
 
-
+        logg.writeto("Checking if an exposition is in progress.");
         if (isInAcq!=0)//the go loop should not be running while the roi is set
-        {
+        {   logg.writetoVerbose("An acquisition loop is in progress.");
+            logg.writetoVerbose("We will try to abort the exposure.");
             if (ncCamAbort(myCam)!=0)
             {
                 logg.writetoVerbose("Unable to abort the camera\n");
@@ -710,34 +713,35 @@ while(1)
             }
             else
             {
+                logg.writetoVerbose("Acquisition aborted successfully.");
                 isInAcq=0;
             }
 
         }
-
+       logg.writeto("Get current Readout mode");
        if (ncCamGetCurrentReadoutMode(myCam,&ro_mode,&ncAmpliNo,Amp,&VerHz,&HorHz)!=0)
-       {std::cout<<"Problème ligne 663"<<std::endl;
+       {
+           logg.writetoVerbose("unable to get the current readout mode.");
            sprintf(cWRITE,"%d",-1);
            WRITE = cWRITE;
            read2way(repID,&WRITE,WRITE);
            logg.writetoVerbose("unable to query the camera");
            break;
-
        }
        //mode conventionel
        if (ro_mode>=4 && ro_mode<=11)
        {
             if (ncCamGetMaxSize(myCam, &fullWidth, &fullHeight)!=0){
-                std::cout<<"Problème ligne 675"<<std::endl;
+                logg.writetoVerbose("unable to get the image buffer size.");
                 sprintf(dummy,"-1");}
             else if (ncCamSetMRoiSize(myCam,0,fullWidth,roiHeight)!=0){
-                std::cout<<"Problème ligne 678"<<std::endl;
+                logg.writetoVerbose("unable to get MROI size.");
                 sprintf(dummy,"-1");}
             else if (ncCamSetMRoiPosition(myCam,0,0,offsetY)!=0){
-                std::cout<<"Problème ligne 681"<<std::endl;
+                logg.writetoVerbose("unable to set MROI positions.");
                 sprintf(dummy,"-1");}
             else if (ncCamMRoiApply( myCam )!=0){
-                std::cout<<"Problème ligne 684"<<std::endl;
+                logg.writetoVerbose("unable to apply multiple ROI.");
                 sprintf(dummy,"-1");}
             else {sprintf(dummy,"0");}
         }
