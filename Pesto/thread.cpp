@@ -366,7 +366,7 @@ void threadStop(int *close,int *isInAcq)
     {
         if(read_socket(&REP,buffStop)!=0){break;}
         if(atoi(REP.c_str())==0)
-        {   std::cout<<"ok--"<<std::endl;
+        {
             *close=0;
             while(*isInAcq){
                 std::cout<<"waiting for the end of the acquisition..."<<std::endl;
