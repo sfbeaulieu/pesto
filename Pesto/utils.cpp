@@ -289,6 +289,16 @@ int initVariable(struct initParam *param,struct camParam *detParam)
     return 0;
 }
 
+
+bool isLeap(int year)
+{
+    if (year%4==0){return true;}
+    else if (year%100==0){return false;}
+    else if (year%400==0){return true;}
+    else {return false;}
+
+}
+
 std::string create_name(void){
 /*
 Description: This function creates the name of the files to be saved. Name are in
@@ -299,9 +309,29 @@ time_t t;
 t = time(NULL);
 std::string name;
 struct tm tm = *localtime(&t);
-if (tm.tm_hour<12){
 
-    sprintf(racine,"%d%.2d%.2d", tm.tm_year+1900-2000,tm.tm_mon+1,tm.tm_mday-1);
+static const int days[2][13] = {
+        {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+        {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+
+};
+
+
+if (tm.tm_hour<12)
+{
+    int year = tm.tm_year+1900-2000;
+    int month = tm.tm_mon+1;
+    int day = tm.tm_mday-1;
+    if (day==1)
+    {
+        day = days[isLeap(year)][month-1];
+        month-=1;
+    }
+    else
+    {
+        day = day-1;
+    }
+    sprintf(racine,"%d%.2d%.2d", year,month,day);
     name = racine;
     name+='_';
     //strcpy(name,concat(racine,"_"));
@@ -317,17 +347,6 @@ if (tm.tm_hour>=12){
 }
 
 return name;}
-
-
-bool isLeap(int year)
-{
-    if (year%4==0){return true;}
-    else if (year%100==0){return false;}
-    else if (year%400==0){return true;}
-    else {return false;}
-
-}
-
 
 std::string create_dossier(int mode,struct camParam *detParam){
 /*
