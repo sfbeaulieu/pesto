@@ -9,6 +9,8 @@
 #include <fstream>
 #include <string>
 #include "listctrl.h"
+
+
 extern int biasOK;
 extern int caseID,repID,buff1ID,buff2ID,buff3ID,buff4ID,pathID,buff2wayID1,buff2wayID2;//tout les ID des socket
 extern Log logg;
@@ -352,7 +354,8 @@ if (tm.tm_hour<12){
 
     if (day==1)
     {
-        day = days[isLeap(year)][month];
+        day = days[isLeap(year)][month-1];
+        month-=1;
     }
     else
     {
