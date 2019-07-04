@@ -321,7 +321,7 @@ if (tm.tm_hour<12)
 {
     int year = tm.tm_year+1900-2000;
     int month = tm.tm_mon+1;
-    int day = tm.tm_mday-1;
+    int day = tm.tm_mday;
     if (day==1)
     {
         day = days[isLeap(year)][month-1];
@@ -329,7 +329,7 @@ if (tm.tm_hour<12)
     }
     else
     {
-        day = day-1;
+        day = day-=1;
     }
     sprintf(racine,"%d%.2d%.2d", year,month,day);
     name = racine;
