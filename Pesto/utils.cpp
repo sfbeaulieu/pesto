@@ -116,7 +116,7 @@ void saveImageCallback(NcCam myCam, NcImageSaved* imageSaved, void* dummy)
     ncWriteFileHeader(imageSaved, NC_DOUBLE, "TMESDECT", &detParam.ccdTemp, "Temperature of the emccd (C)");
     ncWriteFileHeader(imageSaved, NC_INT, "BIAS", &biasOK, "0->bias out of date, 1-> bias up to date");
     ncWriteFileHeader(imageSaved,NC_INT,"FWOVER",&overideFW,"0->filter position set by the filter wheel, 1-> position set by the user.");
-    ncWriteFileHeader(imageSaved, NC_STRING, "FICHIER", nameFile.c_str(), "Filename");
+//    ncWriteFileHeader(imageSaved, NC_STRING, "FICHIER", nameFile.c_str(), "Filename");
 
     //meteo
     ncWriteFileHeader(imageSaved, NC_STRING, "HUMIN", &meteo.Hin, " Interior humidity (%)");
