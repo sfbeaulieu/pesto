@@ -20,7 +20,7 @@ def GetInput(Im,nbOfClick=1,Title=''):
             plt.close(1)
         return  
     Title = 'Select %d Star(s)'%nbOfClick 
-    Im = np.flipud(Im)
+    #Im = np.flipud(Im)
     fig = plt.figure(1)
     ax = fig.add_subplot(111)
     norm = ImageNormalize(Im,interval=ZScaleInterval(),stretch=LinearStretch())
