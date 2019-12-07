@@ -105,15 +105,37 @@ void saveImageCallback(NcCam myCam, NcImageSaved* imageSaved, void* dummy)
     ncWriteFileHeader(imageSaved, NC_STRING, "AIRMASS", &tcs_var.AIRMASS, "Air mass");
     ncWriteFileHeader(imageSaved, NC_STRING, "ST", &tcs_var.ST, "Sideral time");
     ncWriteFileHeader(imageSaved, NC_STRING, "UT", &tcs_var.UT, "Universal time");
-    ncWriteFileHeader(imageSaved, NC_STRING, "TFOCUS", &tcs_var.FOCUS, "Focus of the telescope");
-    ncWriteFileHeader(imageSaved, NC_STRING, "IROTATOR", &tcs_var.TROTATOR, "Angle of the instrument rotator");
+    ncWriteFileHeader(imageSaved, NC_STRING, "YEAR", &tcs_var.YEAR, "Year");
+    ncWriteFileHeader(imageSaved, NC_STRING, "FOCUS", &tcs_var.FOCUS, "Focus of the telescope");
+    ncWriteFileHeader(imageSaved, NC_STRING, "ROTATOR", &tcs_var.TROTATOR, "Angle of the instrument rotator");
     ncWriteFileHeader(imageSaved, NC_STRING, "DOME", &tcs_var.DOME, "Angle of the dome");
     ncWriteFileHeader(imageSaved, NC_STRING, "FILTRE",detParam.current_filter.c_str() , "Filter used");
     ncWriteFileHeader(imageSaved, NC_DOUBLE, "PESTOROT", &detParam.rotAngle, "Angle of the FOV rotator");
     ncWriteFileHeader(imageSaved, NC_DOUBLE, "PESTOMIR", &detParam.rotBras, "Position of the pickup mirror (degree)");
-    ncWriteFileHeader(imageSaved, NC_STRING, "OBSERV", detParam.observateur.c_str(), "Name of the observer");
+    ncWriteFileHeader(imageSaved, NC_STRING, "OBSERVER", detParam.observateur.c_str(), "Name of the observer");
     ncWriteFileHeader(imageSaved, NC_STRING, "OPERATOR", detParam.Operator.c_str(), "Name of the telescope operator");
-    ncWriteFileHeader(imageSaved, NC_DOUBLE, "TMESDECT", &detParam.ccdTemp, "Temperature of the emccd (C)");
+
+    double T1 = detParam.ccdTemp+273.15;
+    std::string T1_str = std::to_string(T1);
+    ncWriteFileHeader(imageSaved, NC_STRING, "T1", T1_str.c_str(), "Temperature of the emccd (K)");
+    ncWriteFileHeader(imageSaved, NC_STRING, "T2", "", "Non-applicable");
+    ncWriteFileHeader(imageSaved, NC_STRING, "T3", "", "Non-applicable");
+    ncWriteFileHeader(imageSaved, NC_STRING, "T4", "", "Non-applicable");
+    ncWriteFileHeader(imageSaved, NC_STRING, "T1NOM", "EMCCD =", "Identification T1");
+    ncWriteFileHeader(imageSaved, NC_STRING, "T2NOM", "", "Identification T2");
+    ncWriteFileHeader(imageSaved, NC_STRING, "T3NOM", "", "Identification T3");
+    ncWriteFileHeader(imageSaved, NC_STRING, "T4NOM", "", "Identification T4");
+
+    ncWriteFileHeader(imageSaved, NC_STRING, "FILTER",detParam.current_filter.c_str() , "Filter used");
+    ncWriteFileHeader(imageSaved, NC_STRING, "F1",detParam.current_filter.c_str() , "Pesto filter wheel");
+    ncWriteFileHeader(imageSaved, NC_STRING, "F2","" , "Non-applicable");
+    ncWriteFileHeader(imageSaved, NC_STRING, "F3","" , "Non-applicable");
+    ncWriteFileHeader(imageSaved, NC_STRING, "F4","" , "Non-applicable");
+    ncWriteFileHeader(imageSaved, NC_STRING, "F1NOM","Pesto Wheel=", "Identification F1");
+    ncWriteFileHeader(imageSaved, NC_STRING, "F2NOM","", "Identification F2");
+    ncWriteFileHeader(imageSaved, NC_STRING, "F3NOM","", "Identification F3");
+    ncWriteFileHeader(imageSaved, NC_STRING, "F4NOM","", "Identification F4");
+
     ncWriteFileHeader(imageSaved, NC_INT, "BIAS", &biasOK, "0->bias out of date, 1-> bias up to date");
     ncWriteFileHeader(imageSaved,NC_INT,"FWOVER",&overideFW,"0->filter position set by the filter wheel, 1-> position set by the user.");
 //    ncWriteFileHeader(imageSaved, NC_STRING, "FICHIER", nameFile.c_str(), "Filename");
