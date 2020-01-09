@@ -105,11 +105,10 @@ void saveImageCallback(NcCam myCam, NcImageSaved* imageSaved, void* dummy)
     ncWriteFileHeader(imageSaved, NC_STRING, "AIRMASS", &tcs_var.AIRMASS, "Air mass");
     ncWriteFileHeader(imageSaved, NC_STRING, "ST", &tcs_var.ST, "Sideral time");
     ncWriteFileHeader(imageSaved, NC_STRING, "UT", &tcs_var.UT, "Universal time");
-    ncWriteFileHeader(imageSaved, NC_STRING, "YEAR", &tcs_var.YEAR, "Year");
+    ncWriteFileHeader(imageSaved, NC_STRING, "YEAR", &tcs_var.YEAR, "Year decimal");
     ncWriteFileHeader(imageSaved, NC_STRING, "FOCUS", &tcs_var.FOCUS, "Focus of the telescope");
     ncWriteFileHeader(imageSaved, NC_STRING, "ROTATOR", &tcs_var.TROTATOR, "Angle of the instrument rotator");
     ncWriteFileHeader(imageSaved, NC_STRING, "DOME", &tcs_var.DOME, "Angle of the dome");
-    ncWriteFileHeader(imageSaved, NC_STRING, "FILTRE",detParam.current_filter.c_str() , "Filter used");
     ncWriteFileHeader(imageSaved, NC_DOUBLE, "PESTOROT", &detParam.rotAngle, "Angle of the FOV rotator");
     ncWriteFileHeader(imageSaved, NC_DOUBLE, "PESTOMIR", &detParam.rotBras, "Position of the pickup mirror (degree)");
     ncWriteFileHeader(imageSaved, NC_STRING, "OBSERVER", detParam.observateur.c_str(), "Name of the observer");
