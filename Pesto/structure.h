@@ -32,6 +32,7 @@ struct camParam{
     double waitingTime;
     double exposureTime;
     std::string object_name;
+    std::string program_name;
     std::string path;
     int nbrExp;
     double ccdTemp;

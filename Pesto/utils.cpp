@@ -98,6 +98,7 @@ void saveImageCallback(NcCam myCam, NcImageSaved* imageSaved, void* dummy)
     ncWriteFileHeader(imageSaved, NC_STRING, "INSTRUME", "PESTO", "Instrument name");
     ncWriteFileHeader(imageSaved, NC_STRING, "TELESCOP", "OMM", "Observatoire du Mont-Megantic");
     ncWriteFileHeader(imageSaved, NC_STRING, "OBJECT", detParam.object_name.c_str(), "Object name");
+    ncWriteFileHeader(imageSaved, NC_STRING, "PROGRAM", detParam.program_name.c_str(), "Program name");
     ncWriteFileHeader(imageSaved, NC_STRING, "RA", &tcs_var.RA, "Right ascension");
     ncWriteFileHeader(imageSaved, NC_STRING, "HA", &tcs_var.HA, "Hour angle");
     ncWriteFileHeader(imageSaved, NC_STRING, "DEC", &tcs_var.DEC, "Declination");
@@ -114,9 +115,9 @@ void saveImageCallback(NcCam myCam, NcImageSaved* imageSaved, void* dummy)
     ncWriteFileHeader(imageSaved, NC_STRING, "OBSERVER", detParam.observateur.c_str(), "Name of the observer");
     ncWriteFileHeader(imageSaved, NC_STRING, "OPERATOR", detParam.Operator.c_str(), "Name of the telescope operator");
 
-    double T1 = detParam.ccdTemp+273.15;
+    double T1 = detParam.ccdTemp;
     std::string T1_str = std::to_string(T1);
-    ncWriteFileHeader(imageSaved, NC_STRING, "T1", T1_str.c_str(), "Temperature of the emccd (K)");
+    ncWriteFileHeader(imageSaved, NC_STRING, "T1", T1_str.c_str(), "Temperature of the emccd (C)");
     ncWriteFileHeader(imageSaved, NC_STRING, "T2", "", "Non-applicable");
     ncWriteFileHeader(imageSaved, NC_STRING, "T3", "", "Non-applicable");
     ncWriteFileHeader(imageSaved, NC_STRING, "T4", "", "Non-applicable");
@@ -289,6 +290,7 @@ int initVariable(struct initParam *param,struct camParam *detParam)
 
     //Need to be implemented in init (above code)
     detParam->object_name="Object";
+    detParam->program_name="-";
     detParam->current_filter="N/A";
     detParam->observateur="Unknown";
     overideFW=0;//overide the filter wheel position

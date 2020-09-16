@@ -913,6 +913,24 @@ while(1)
         }
         break;
     }
+    case 29://set object name
+    {
+        if(read_socket(&buff1,buff1ID)!=0)
+        {   logg.writeto("unable to read the argument buffer (SET_PROGRAM)");
+            sprintf(cWRITE,"%d",-1);
+            WRITE = cWRITE;
+            read2way(repID,&WRITE,WRITE);
+            break;
+        }
+        else
+        {
+            detParam.program_name=buff1;
+            sprintf(cWRITE,"%d",0);
+            WRITE = cWRITE;
+            read2way(repID,&WRITE,WRITE);
+        }
+        break;
+    }
     }//switch statement
 }
 

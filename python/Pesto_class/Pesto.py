@@ -4,6 +4,7 @@ import datetime as DT
 import file as fi
 import redux as red
 import time
+import asdasdasd
 class Pesto:
     """Description:\n Methods to communicate with the Nuvu hnu1024 camera.\n
     *set_tstamp->sets the time stamp.\n

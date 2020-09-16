@@ -46,8 +46,14 @@ sys.stdout.write(";PESTOROT;" + str(header["PESTOROT"])+";\n")
 sys.stdout.write(";PESTOMIR;" + str(header["PESTOMIR"])+";\n")
 sys.stdout.write(";OBSERVER;" + str(header["OBSERVER"])+";\n")
 sys.stdout.write(";OPERATOR;" + str(header["OPERATOR"])+";\n")
-sys.stdout.write(";T1;" + str(header["T1"])+";\n;")
+sys.stdout.write(";T1;" + str(header["T1"])+";\n")
 sys.stdout.write(";FILTER;" + str(header["FILTER"])+";\n")
 sys.stdout.write(";BIAS;" + str(header["BIAS"])+";\n")
 sys.stdout.write(";FWOVER;" + str(header["FWOVER"])+";\n")
+try:
+	sys.stdout.write(";CTRLTIME;" + str(header["CTRLTIME"])+";\n")
+	sys.stdout.write(";CTRLTMFL;" + str(header["CTRLTMFL"])+";\n")
+except:
+	sys.stdout.write(";CTRLTIME;" + "-1"+";\n")
+	sys.stdout.write(";CTRLTMFL;" + "-1"+";\n")
 
