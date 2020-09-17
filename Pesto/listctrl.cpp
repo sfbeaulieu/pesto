@@ -44,6 +44,8 @@ for (int i=0;i<1;i++)
     if (ncControllerListGetFullSizeSize(ctrlList,i,&sizeX,&sizeY)){cout<<"error--unable to get the full size of the detector of the camera"<<endl; return -1;}
     if (ncControllerListGetDetectorType(ctrlList,i,detector,serialSize)!=0){cout<<"error--unable to get the detector type of the camera"<<endl; return -1;}
     cout<<"::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"<<endl;
+    std::string version = "1.11";
+    cout<<"Pesto version: "<< version << endl;
     cout<<"Index: ("<<i<<")"<<endl;
     cout<<"Serial: "<<serial<<endl;
     cout<<"Model: "<<model<<endl;
@@ -53,6 +55,7 @@ for (int i=0;i<1;i++)
     cout<<"Unique ID: "<<unID<<endl;
     cout<<"Detector size: "<<sizeX<<"X"<<sizeY<<endl;
     cout<<"Detector Type: "<<detector<<endl;
+
 }
 cout<<"::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"<<endl;
 cout<<"Select a camera and enter the index number:"<<endl;

@@ -5,6 +5,8 @@
 #include "nc_driver.h"
 #include "structure.h"
 #include "fw.h"
+#include "string"
+
 
 int caseID,repID,buff1ID,buff2ID,buff3ID,buff4ID,pathID,buff2wayID1,buff2wayID2,buffAcQ,buffStop,buffInc;//tout les ID des socket
 pthread_t pth1,pth2;//pense pas qu'on a en encore dde besoin
