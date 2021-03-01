@@ -152,29 +152,33 @@ void acquisition(int *mode, int *loop, int *inc){
 
 void tcs(struct TCS *tcs_var)
 {
+    bool connection_ok = false;
     int conteur=0;
     int port=8380;
     char command[258]="EINF000000011\0";
+    char command2[258]="EING000000011\0";
     std::string write,read,str;
     char *token;
     int length;
     write = command;
 
-//std::cout<<"starting the thread tcs"<<std::endl;
+    //std::cout<<"starting the thread tcs"<<std::endl;
     while(tcs_loop)
     {   sleep(4);
-
+        connection_ok = false;
         if (write2way_adress(port, adress_tcs, write, &read)==0)
         {
             if (strncmp(read.c_str(),"ANSW",4)!=0){
                  conteur+=1;
                  if (conteur>30){
-                 logg.writetoVerbose("BonOMM is not responsive to Pesto's querries for more than 120 sec. Please make sure BonOMM is open.");
-                 logg.writetoVerbose("If the problem persist, restart the PineNuts and Pesto software.");
+                 logg.writetoVerbose("BonOMM ne répond pas");
+                 logg.writetoVerbose("Si le probleme persiste, redémarrez les logiciels PineNuts et Pesto.");
                 }
             }
             else
-            {   conteur=0;
+            {
+                connection_ok = true;
+                conteur=0;
                 length = stoi(read.substr(4,8));
                 str = read.substr(12,length);
 
@@ -213,9 +217,6 @@ void tcs(struct TCS *tcs_var)
                 sprintf(tcs_var->TROTATOR,"%s\n",token);
                 token = strtok(NULL,"\r");
 
-
-
-
             }
         }
         else
@@ -223,8 +224,28 @@ void tcs(struct TCS *tcs_var)
             sleep(2);
             if (conteur>30)
             {
-                logg.writetoVerbose("Unable to communicate with TCS for more than 120 sec. Please make sure BonOMM is open.");
-                logg.writetoVerbose("If the problem persist, restart the PineNuts and Pesto software.");
+                logg.writetoVerbose("BonOMM ne répond pas");
+                logg.writetoVerbose("Si le probleme persiste, redémarrez les logiciels PineNuts et Pesto.");
+            }
+        }
+
+
+        if ((write2way_adress(port, adress_tcs, command2, &read)==0) && connection_ok)
+        {
+            //On récupère les infos de telinfo2, le bras et le rotateur, on se fit à la précédente connection pour savoir si on va de l'avant
+            if (strncmp(read.c_str(),"ANSW",4)==0)
+            {
+                length = stoi(read.substr(4,8));
+                str = read.substr(12,length);
+
+                token = strtok((char *)str.c_str(),"\r");
+                memset(&tcs_var->PESTOROT[0],0,sizeof(tcs_var->PESTOROT));
+                sprintf(tcs_var->PESTOROT,"%s\n",token);
+                token = strtok(NULL,"\r");
+                memset(&tcs_var->PESTOMIR[0],0,sizeof(tcs_var->PESTOMIR));
+                sprintf(tcs_var->PESTOMIR,"%s\n",token);
+
+
             }
         }
     }

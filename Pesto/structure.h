@@ -59,6 +59,8 @@ char YEAR[15];
 char FOCUS[15];
 char DOME[15];
 char TROTATOR[15];
+char PESTOROT[15];
+char PESTOMIR[15];
 };
 struct Meteo{
     char Hin[30];
