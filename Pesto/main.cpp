@@ -85,11 +85,11 @@ while(1)
                 read2way(repID,&WRITE,WRITE);
                 break;
             }
-
-            if (developpement==0)
+            //Pour aller chercher les valeur du bras de pesto a partir du raspberry pi. Celui-ci est enlevé.
+            /*if (developpement==0)
             {
                 preACQ(&detParam);
-            }
+            }*/
 
 
             loop=1;//open the acquisition loop
